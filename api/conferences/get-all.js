@@ -1,4 +1,5 @@
 const { query } = require('../../db/mysql');
+const logger = require('../../utils/logger');
 
 module.exports = async(req, res) => {
   try {
@@ -12,8 +13,7 @@ module.exports = async(req, res) => {
     const results = await query(sql);
     res.send(results);
   } catch (err) {
-    console.error('ERROR ', new Date());
-    console.error(err);
+    logger.error(err);
     res.sendStatus(500);
   }
 };

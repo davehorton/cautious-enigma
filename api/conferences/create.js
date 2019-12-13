@@ -1,4 +1,5 @@
 const { query } = require('../../db/mysql');
+const logger = require('../../utils/logger');
 
 module.exports = async(req, res) => {
   try {
@@ -21,8 +22,7 @@ module.exports = async(req, res) => {
       res.status(409).send('A meeting with that PIN already exists');
       return;
     }
-    console.error('ERROR ', new Date());
-    console.error(err);
+    logger.error(err);
     res.sendStatus(500);
   }
 };

@@ -4,6 +4,7 @@
 const config = require('config');
 const express = require('express');
 const app = express();
+const logger = require('./utils/logger');
 app.use(express.urlencoded({ extended: true }));
 
 //=============================================================================
@@ -16,6 +17,6 @@ app.use('/api', require('./api'));
 //=============================================================================
 app.listen(config.get('port'), () => {
   console.log('#==========================================================');
-  console.log(`# API started on port ${config.get('port')}`);
+  logger.info(`# API started on port ${config.get('port')}`);
   console.log('#==========================================================');
 });

@@ -1,5 +1,8 @@
 {
   "port": 8000,
+  "logging": {
+    "level": "info"
+  },
   "mysql": {
     "host": "localhost",
     "user": "deepgram",
