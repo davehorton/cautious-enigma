@@ -1,4 +1,5 @@
 {
+  "port": 8000,
   "mysql": {
     "host": "localhost",
     "user": "deepgram",
