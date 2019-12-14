@@ -19,6 +19,7 @@ CREATE TABLE `transcriptions`
     `conference_id`     INT NOT NULL,
     PRIMARY KEY (`id`),
     FOREIGN KEY (`conference_id`) REFERENCES conferences(`id`)
+    ON DELETE CASCADE
   );
 
 CREATE TABLE `utterances`
@@ -33,4 +34,5 @@ CREATE TABLE `utterances`
     PRIMARY KEY (`id`),
     UNIQUE KEY (`seq`, `transcription_id`),
     FOREIGN KEY (`transcription_id`) REFERENCES transcriptions(`id`)
+    ON DELETE CASCADE
   );
