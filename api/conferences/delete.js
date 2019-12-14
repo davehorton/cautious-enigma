@@ -18,7 +18,7 @@ module.exports = async(req, res) => {
       WHERE id = ?
     `;
     await query(sqlDelete, req.params.id);
-    res.send('Conference deleted');
+    res.status(200).send('Conference deleted');
   } catch (err) {
     logger.error(err);
     res.sendStatus(500);

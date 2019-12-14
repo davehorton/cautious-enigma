@@ -16,7 +16,7 @@ module.exports = async(req, res) => {
       req.body.description,
     ];
     await query(sql, sqlValues);
-    res.sendStatus(201);
+    res.status(201).send('Conference created');
   } catch (err) {
     if (err.code === 'ER_DUP_ENTRY') {
       res.status(409).send('A meeting with that PIN already exists');

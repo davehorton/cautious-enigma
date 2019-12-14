@@ -18,7 +18,7 @@ module.exports = async(req, res) => {
       WHERE id = ?
     `;
     await query(sqlDelete, req.params.id);
-    res.send('transcription deleted');
+    res.status(200).send('Transcription deleted');
   } catch (err) {
     logger.error(err);
     res.sendStatus(500);

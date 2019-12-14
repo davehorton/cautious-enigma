@@ -16,7 +16,7 @@ module.exports = async(req, res) => {
       res.status(404).send('Transcription doesn\'t exist');
       return;
     }
-    res.send(results);
+    res.status(200).send(results[0]);
   } catch (err) {
     logger.error(err);
     res.sendStatus(500);

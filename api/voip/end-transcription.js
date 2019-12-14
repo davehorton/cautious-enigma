@@ -37,7 +37,7 @@ module.exports = async(req, res) => {
       AND time_end IS NULL
     `;
     await query(sqlEndTranscription, [new Date(), conferenceId]);
-    res.send('Transcription ended successfully');
+    res.status(200).send('Transcription ended successfully');
 
   } catch (err) {
     logger.error(err);

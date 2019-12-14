@@ -64,7 +64,7 @@ module.exports = async(req, res) => {
       transcriptionId
     ];
     await query(sqlAddUtterance, sqlValuesAddUtterance);
-    res.send('Utterance added successfully');
+    res.status(200).send('Utterance added successfully');
 
   } catch (err) {
     logger.error(err);

@@ -30,7 +30,7 @@ module.exports = async(req, res) => {
       req.params.id,
     ];
     await query(sqlUpdate, sqlUpdateValues);
-    res.send('Conference updated');
+    res.status(200).send('Conference updated');
   } catch (err) {
     logger.error(err);
     res.sendStatus(500);
