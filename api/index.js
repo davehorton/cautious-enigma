@@ -17,8 +17,8 @@ router.delete('/trans/:id',      require('./transcriptions/delete'));
 router.get ('/trans/:id/utter', require('./utterances/get-all'));
 
 // VoIP
-router.post('/start-transcription/:pin', require('./voip/start-transcription'));
-router.put ('/end-transcription/:pin',   require('./voip/end-transcription'));
-router.post('/add-utterance/:pin',       require('./voip/add-utterance'));
+router.post('/voip/start-transcription/:pin', require('./voip/start-transcription'));
+router.put ('/voip/end-transcription/:pin',   require('./voip/end-transcription'));
+router.post('/voip/add-utterance/:pin',       require('./voip/add-utterance'));
 
 module.exports = router;
