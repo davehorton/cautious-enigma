@@ -63,6 +63,17 @@ paths:
       responses:
         201:
           description: Conference created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  conferenceId:
+                    type: integer
+                required:
+                  - conferenceId
+                example:
+                  conferenceId: 123
         400:
           description: Meeting PIN required
         409:
