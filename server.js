@@ -6,6 +6,7 @@ const express = require('express');
 const app = express();
 const logger = require('./utils/logger');
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 //=============================================================================
 // Routes

@@ -1,5 +1,13 @@
 const express = require('express');
 const router = express.Router();
+const YAML = require('yamljs');
+const path = require('path');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = YAML.load(path.resolve(__dirname, '../api/swagger.yaml'));
+
+// API Docs
+router.use('/docs', swaggerUi.serve);
+router.get('/docs', swaggerUi.setup(swaggerDocument));
 
 // Web: Conferences
 router.get   ('/conf',     require('./conferences/get-all'));
