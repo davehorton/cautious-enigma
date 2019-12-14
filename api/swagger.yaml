@@ -180,6 +180,8 @@ paths:
                   required:
                     - id
                     - time_start
+        404:
+          description: Conference doesn't exist
         500:
           description: Internal Server error
 
@@ -271,6 +273,8 @@ paths:
                   required:
                     - seq
                     - speech
+        404:
+          description: Transcription doesn't exist
         500:
           description: Internal Server error
 

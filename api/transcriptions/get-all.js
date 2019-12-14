@@ -3,6 +3,16 @@ const logger = require('../../utils/logger');
 
 module.exports = async(req, res) => {
   try {
+    const sqlCheckIfConfExists = `
+      SELECT id
+      FROM conferences
+      WHERE id = ?
+    `;
+    const resultsCheckIfConfExists = await query(sqlCheckIfConfExists, req.params.id);
+    if (!resultsCheckIfConfExists.length) {
+      res.status(404).send('Conference doesn\'t exist');
+      return;
+    }
     const sql = `
       SELECT
         id,

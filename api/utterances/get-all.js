@@ -3,6 +3,16 @@ const logger = require('../../utils/logger');
 
 module.exports = async(req, res) => {
   try {
+    const sqlCheckIfTransExists = `
+      SELECT id
+      FROM transcriptions
+      WHERE id = ?
+    `;
+    const resultsCheckIfTransExists = await query(sqlCheckIfTransExists, req.params.id);
+    if (!resultsCheckIfTransExists.length) {
+      res.status(404).send('Transcription doesn\'t exist');
+      return;
+    }
     const sql = `
       SELECT
         seq,
