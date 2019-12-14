@@ -126,6 +126,8 @@ paths:
           description: Meeting PIN required
         404:
           description: Conference doesn't exist
+        409:
+          description: A meeting with that PIN already exists
         500:
           description: Internal Server error
 
