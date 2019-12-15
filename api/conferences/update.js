@@ -23,7 +23,10 @@ module.exports = async(req, res) => {
       WHERE meeting_pin = ?
     `;
     const resultsCheckIfPinInUse = await query(sqlCheckIfPinInUse, req.body['meeting-pin']);
-    if (resultsCheckIfPinInUse.length) {
+    if (
+      resultsCheckIfPinInUse.length &&
+      resultsCheckIfPinInUse[0].id !== parseInt(req.params.id)
+    ) {
       res.status(409).send('A meeting with that PIN already exists');
       return;
     }
