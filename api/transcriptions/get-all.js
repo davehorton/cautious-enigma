@@ -22,7 +22,7 @@ module.exports = async(req, res) => {
       WHERE conference_id = ?
     `;
     const results = await query(sql, req.params.id);
-    res.status(200).send(results);
+    res.status(200).json(results);
   } catch (err) {
     logger.error(err);
     res.sendStatus(500);

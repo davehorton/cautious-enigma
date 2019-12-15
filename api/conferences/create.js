@@ -22,7 +22,7 @@ module.exports = async(req, res) => {
       WHERE meeting_pin = ?
     `;
     const conferenceId = await query(sqlGetConfId, req.body['meeting-pin']);
-    res.status(201).send({ conferenceId: conferenceId[0].id });
+    res.status(201).json({ conferenceId: conferenceId[0].id });
   } catch (err) {
     if (err.code === 'ER_DUP_ENTRY') {
       res.status(409).send('A meeting with that PIN already exists');
