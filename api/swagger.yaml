@@ -302,7 +302,7 @@ paths:
   #==============================================================================
   # voip
   #==============================================================================
-  /voip/start-transcription/{meetingPin}:
+  /voip/join-conference/{meetingPin}:
     parameters:
       - name: meetingPin
         in: path
@@ -327,8 +327,31 @@ paths:
             example:
               freeswitch-ip: 10.0.0.10
       responses:
+        200:
+          description: Transcription in progress, FreeSWITCH IP included in response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  date_created:
+                    type: string
+                    format: date-time
+                  meeting_pin:
+                    type: integer
+                  description:
+                    type: string
+                  freeswitch_ip:
+                    type: string
+                    format: ipv4
+                required:
+                  - id
+                  - date_created
+                  - meeting_pin
         201:
-          description: Transcription started successfully
+          description: Transcription started
           content:
             application/json:
               schema:

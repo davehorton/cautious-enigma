@@ -61,11 +61,15 @@ module.exports = async(req, res) => {
             (?)
         `;
         await conn.query(sqlStartTranscription, conferenceId);
+        await conn.commit();
+        res.status(201).json(conferenceInfo);
+        await conn.release();
+      } else {
+        // If freeswitch IP already preset, simply return conference info
+        await conn.commit();
+        res.status(200).json(conferenceInfo);
+        await conn.release();
       }
-
-      await conn.commit();
-      res.status(200).json(conferenceInfo);
-      await conn.release();
 
     } catch (err) {
       await conn.rollback();
