@@ -1,4 +1,4 @@
-const { query } = require('../../db/mysql');
+const mysql = require('../../db/mysql');
 const logger = require('../../utils/logger');
 
 module.exports = async(req, res) => {
@@ -9,7 +9,7 @@ module.exports = async(req, res) => {
       FROM conferences
       WHERE meeting_pin = ?
     `;
-    const conferenceIdResults = await query(sqlGetConferenceId, req.params.pin);
+    const [conferenceIdResults] = await mysql.query(sqlGetConferenceId, req.params.pin);
     if (!conferenceIdResults.length) {
       res.status(404).send('Conference doesn\'t exist');
       return;
@@ -23,7 +23,7 @@ module.exports = async(req, res) => {
       WHERE conference_id = ?
       AND time_end IS NULL
     `;
-    await query(sqlCloseExistingTrans, [new Date(), conferenceId]);
+    await mysql.query(sqlCloseExistingTrans, [new Date(), conferenceId]);
 
     // Start transcription
     const sqlStartTranscription = `
@@ -32,7 +32,7 @@ module.exports = async(req, res) => {
       VALUES
         (?)
     `;
-    await query(sqlStartTranscription, conferenceId);
+    await mysql.query(sqlStartTranscription, conferenceId);
     res.status(201).send('Transcription started successfully');
 
   } catch (err) {

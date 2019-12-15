@@ -1,4 +1,4 @@
-const { query } = require('../../db/mysql');
+const mysql = require('../../db/mysql');
 const logger = require('../../utils/logger');
 
 module.exports = async(req, res) => {
@@ -15,7 +15,7 @@ module.exports = async(req, res) => {
       req.body['meeting-pin'],
       req.body.description,
     ];
-    const results = await query(sql, sqlValues);
+    const [results] = await mysql.query(sql, sqlValues);
     const conferenceId = results.insertId;
     res.status(201).json({ conferenceId });
   } catch (err) {

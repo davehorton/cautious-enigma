@@ -1,4 +1,4 @@
-const { query } = require('../../db/mysql');
+const mysql = require('../../db/mysql');
 const logger = require('../../utils/logger');
 
 module.exports = async(req, res) => {
@@ -12,7 +12,7 @@ module.exports = async(req, res) => {
       FROM conferences
       WHERE id = ?
     `;
-    const resultsCheckIfConfExists = await query(sqlCheckIfConfExists, req.params.id);
+    const [resultsCheckIfConfExists] = await mysql.query(sqlCheckIfConfExists, req.params.id);
     if (!resultsCheckIfConfExists.length) {
       res.status(404).send('Conference doesn\'t exist');
       return;
@@ -22,7 +22,7 @@ module.exports = async(req, res) => {
       FROM conferences
       WHERE meeting_pin = ?
     `;
-    const resultsCheckIfPinInUse = await query(sqlCheckIfPinInUse, req.body['meeting-pin']);
+    const [resultsCheckIfPinInUse] = await mysql.query(sqlCheckIfPinInUse, req.body['meeting-pin']);
     if (
       resultsCheckIfPinInUse.length &&
       resultsCheckIfPinInUse[0].id !== parseInt(req.params.id)
@@ -42,7 +42,7 @@ module.exports = async(req, res) => {
       req.body.description,
       req.params.id,
     ];
-    await query(sqlUpdate, sqlUpdateValues);
+    await mysql.query(sqlUpdate, sqlUpdateValues);
     res.status(200).send('Conference updated');
   } catch (err) {
     logger.error(err);

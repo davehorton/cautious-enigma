@@ -1,4 +1,4 @@
-const { query } = require('../../db/mysql');
+const mysql = require('../../db/mysql');
 const logger = require('../../utils/logger');
 
 module.exports = async(req, res) => {
@@ -8,7 +8,7 @@ module.exports = async(req, res) => {
       FROM conferences
       WHERE id = ?
     `;
-    const resultsCheckIfExists = await query(sqlCheckIfExists, req.params.id);
+    const [resultsCheckIfExists] = await mysql.query(sqlCheckIfExists, req.params.id);
     if (!resultsCheckIfExists.length) {
       res.status(404).send('Conference doesn\'t exist');
       return;
@@ -17,7 +17,7 @@ module.exports = async(req, res) => {
       DELETE FROM conferences
       WHERE id = ?
     `;
-    await query(sqlDelete, req.params.id);
+    await mysql.query(sqlDelete, req.params.id);
     res.status(200).send('Conference deleted');
   } catch (err) {
     logger.error(err);

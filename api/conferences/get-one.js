@@ -1,4 +1,4 @@
-const { query } = require('../../db/mysql');
+const mysql = require('../../db/mysql');
 const logger = require('../../utils/logger');
 
 module.exports = async(req, res) => {
@@ -12,7 +12,7 @@ module.exports = async(req, res) => {
       FROM conferences
       WHERE id = ?
     `;
-    const results = await query(sql, req.params.id);
+    const [results] = await mysql.query(sql, req.params.id);
     if (!results.length) {
       res.status(404).send('Conference doesn\'t exist');
       return;

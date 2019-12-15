@@ -1,4 +1,4 @@
-const { query } = require('../../db/mysql');
+const mysql = require('../../db/mysql');
 const logger = require('../../utils/logger');
 
 module.exports = async(req, res) => {
@@ -10,7 +10,7 @@ module.exports = async(req, res) => {
         description
       FROM conferences
     `;
-    const results = await query(sql);
+    const [results] = await mysql.query(sql);
     res.status(200).json(results);
   } catch (err) {
     logger.error(err);

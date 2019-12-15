@@ -1,4 +1,4 @@
-const { query } = require('../../db/mysql');
+const mysql = require('../../db/mysql');
 const logger = require('../../utils/logger');
 
 module.exports = async(req, res) => {
@@ -14,7 +14,7 @@ module.exports = async(req, res) => {
       FROM conferences
       WHERE meeting_pin = ?
     `;
-    const conferenceIdResults = await query(sqlGetConferenceId, req.params.pin);
+    const [conferenceIdResults] = await mysql.query(sqlGetConferenceId, req.params.pin);
     if (!conferenceIdResults.length) {
       res.status(404).send('Conference doesn\'t exist');
       return;
@@ -28,7 +28,7 @@ module.exports = async(req, res) => {
       WHERE conference_id = ?
       AND time_end IS NULL
     `;
-    const transcriptionIdResults = await query(sqlGetTranscriptionId, conferenceId);
+    const [transcriptionIdResults] = await mysql.query(sqlGetTranscriptionId, conferenceId);
     if (!transcriptionIdResults.length) {
       res.status(404).send('No active transcription');
       return;
@@ -44,7 +44,7 @@ module.exports = async(req, res) => {
       ORDER BY seq DESC
       LIMIT 1
     `;
-    const prevSeqResults = await query(sqlGetSeq, transcriptionId);
+    const [prevSeqResults] = await mysql.query(sqlGetSeq, transcriptionId);
     if (prevSeqResults.length) {
       seq = prevSeqResults[0].seq + 1;
     }
@@ -63,7 +63,7 @@ module.exports = async(req, res) => {
       req.body.confidence,
       transcriptionId
     ];
-    await query(sqlAddUtterance, sqlValuesAddUtterance);
+    await mysql.query(sqlAddUtterance, sqlValuesAddUtterance);
     res.status(200).send('Utterance added successfully');
 
   } catch (err) {

@@ -1,4 +1,4 @@
-const { query } = require('../../db/mysql');
+const mysql = require('../../db/mysql');
 const logger = require('../../utils/logger');
 
 module.exports = async(req, res) => {
@@ -8,7 +8,7 @@ module.exports = async(req, res) => {
       FROM transcriptions
       WHERE id = ?
     `;
-    const resultsCheckIfTransExists = await query(sqlCheckIfTransExists, req.params.id);
+    const [resultsCheckIfTransExists] = await mysql.query(sqlCheckIfTransExists, req.params.id);
     if (!resultsCheckIfTransExists.length) {
       res.status(404).send('Transcription doesn\'t exist');
       return;
@@ -23,7 +23,7 @@ module.exports = async(req, res) => {
       FROM utterances
       WHERE transcription_id = ?
     `;
-    const results = await query(sql, req.params.id);
+    const [results] = await mysql.query(sql, req.params.id);
     res.status(200).json(results);
   } catch (err) {
     logger.error(err);
