@@ -16,19 +16,6 @@ module.exports = async(req, res) => {
     }
     const conferenceId = conferenceIdResults[0].id;
 
-    // See if there are any active transcriptions
-    const sqlFindActiveTranscriptions = `
-      SELECT id
-      FROM transcriptions
-      WHERE conference_id = ?
-      AND time_end IS NULL
-    `;
-    const activeTranscriptions = await mysql.query(sqlFindActiveTranscriptions, conferenceId);
-    if (!activeTranscriptions.length) {
-      res.status(404).send('No active transcription to end');
-      return;
-    }
-
     // End active transcription(s)
     const sqlEndTranscription = `
       UPDATE transcriptions
@@ -37,6 +24,15 @@ module.exports = async(req, res) => {
       AND time_end IS NULL
     `;
     await mysql.query(sqlEndTranscription, [new Date(), conferenceId]);
+
+    // Remove FreeSWITCH IP from current conferences
+    const sqlRemoveFreeswitchIp = `
+      UPDATE conferences
+      SET freeswitch_ip = NULL
+      WHERE id = ?
+    `;
+    await mysql.query(sqlRemoveFreeswitchIp, conferenceId);
+
     res.status(200).send('Transcription ended successfully');
 
   } catch (err) {

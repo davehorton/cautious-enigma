@@ -8,7 +8,8 @@ module.exports = async(req, res) => {
         id,
         date_created,
         meeting_pin,
-        description
+        description,
+        freeswitch_ip
       FROM conferences
       WHERE id = ?
     `;

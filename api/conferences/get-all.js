@@ -6,8 +6,10 @@ module.exports = async(req, res) => {
     const sql = `
       SELECT
         id,
+        date_created,
         meeting_pin,
-        description
+        description,
+        freeswitch_ip
       FROM conferences
     `;
     const [results] = await mysql.query(sql);

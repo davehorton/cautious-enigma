@@ -40,12 +40,19 @@ paths:
                   properties:
                     id:
                       type: integer
+                    date_created:
+                      type: string
+                      format: date-time
                     meeting_pin:
                       type: integer
                     description:
                       type: string
+                    freeswitch_ip:
+                      type: string
+                      format: ipv4
                   required:
                     - id
+                    - date_created
                     - meeting_pin
         500:
           description: Internal Server error
@@ -111,6 +118,9 @@ paths:
                     type: integer
                   description:
                     type: string
+                  freeswitch_ip:
+                    type: string
+                    format: ipv4
                 required:
                   - id
                   - date_created
@@ -304,9 +314,44 @@ paths:
       summary: Start a transcription for a conference based off of meeting pin
       tags:
         - voip
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                freeswitch-ip:
+                  type: string
+              required:
+                - freeswitch-ip
+            example:
+              freeswitch-ip: 10.0.0.10
       responses:
         201:
           description: Transcription started successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  date_created:
+                    type: string
+                    format: date-time
+                  meeting_pin:
+                    type: integer
+                  description:
+                    type: string
+                  freeswitch_ip:
+                    type: string
+                    format: ipv4
+                required:
+                  - id
+                  - date_created
+                  - meeting_pin
+        400:
+          description: FreeSWITCH IP required
         404:
           description: Conference doesn't exist
         500:
@@ -329,7 +374,7 @@ paths:
         200:
           description: Transcription ended successfully
         404:
-          description: \"Conference doesn't exist\" or \"No active transcription to end\"
+          description: Conference doesn't exist
         500:
           description: Internal Server error
 

@@ -8,6 +8,7 @@ CREATE TABLE `conferences`
     `date_created`      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `meeting_pin`       INT NOT NULL UNIQUE,
     `description`       VARCHAR(255),
+    `freeswitch_ip`     VARCHAR(21),
     PRIMARY KEY (`id`)
   );
 
