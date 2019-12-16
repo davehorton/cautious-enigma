@@ -350,6 +350,12 @@ paths:
                   - id
                   - date_created
                   - meeting_pin
+              example:
+                id: 12
+                date_created: 2019-12-16T07:52:54.922Z
+                meeting_pin: 555
+                description: Daily meeting
+                freeswitch_ip: 10.0.0.10
         201:
           description: Transcription started
           content:
@@ -368,11 +374,17 @@ paths:
                     type: string
                   freeswitch_ip:
                     type: string
-                    format: ipv4
+                    nullable: true
                 required:
                   - id
                   - date_created
                   - meeting_pin
+              example:
+                id: 12
+                date_created: 2019-12-16T07:52:54.922Z
+                meeting_pin: 555
+                description: Daily meeting
+                freeswitch_ip: null
         400:
           description: FreeSWITCH IP required
         404:
