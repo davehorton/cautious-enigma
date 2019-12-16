@@ -25,6 +25,8 @@ module.exports = async(req, res) => {
       `;
       const [conferenceInfo] = await conn.query(sqlGetConferenceInfo, req.params.pin);
       if (!conferenceInfo.length) {
+        await conn.rollback();
+        await conn.release();
         res.status(404).send('Conference doesn\'t exist');
         return;
       }
@@ -62,13 +64,13 @@ module.exports = async(req, res) => {
         `;
         await conn.query(sqlStartTranscription, conferenceId);
         await conn.commit();
-        res.status(201).json(conferenceInfo);
         await conn.release();
+        res.status(201).json(conferenceInfo[0]);
       } else {
         // If freeswitch IP already preset, simply return conference info
         await conn.commit();
-        res.status(200).json(conferenceInfo);
         await conn.release();
+        res.status(200).json(conferenceInfo[0]);
       }
 
     } catch (err) {
