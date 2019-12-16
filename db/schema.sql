@@ -1,7 +1,3 @@
-DROP DATABASE IF EXISTS deepgram;
-CREATE DATABASE deepgram;
-USE deepgram;
-
 CREATE TABLE `conferences`
   (
     `id`                INT NOT NULL AUTO_INCREMENT,
