@@ -21,7 +21,7 @@ test('Create Database', async(t) => {
     );
     await exec(
       `mysql -h ${host} -u ${user} -p${password}\
-        ${database} < ${__dirname}/../schema.sql`
+        ${database} < ${__dirname}/../db/schema.sql`
     );
     t.pass('Database created successfully');
     t.end();
