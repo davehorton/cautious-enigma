@@ -20,6 +20,7 @@ module.exports = async(req, res) => {
         time_end
       FROM transcriptions
       WHERE conference_id = ?
+      ORDER BY time_start DESC
     `;
     const [results] = await mysql.query(sql, req.params.id);
     res.status(200).json(results);

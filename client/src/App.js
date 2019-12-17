@@ -13,7 +13,7 @@ function App() {
       <Switch>
         <Route exact path='/'          component={Conferences} />
         <Route exact path='/conf/:id'  component={Transcriptions} />
-        <Route exact path='/trans/:id' component={Utterances} />
+        <Route exact path='/conf/:confId/trans/:transId' component={Utterances} />
       </Switch>
     </div>
   );

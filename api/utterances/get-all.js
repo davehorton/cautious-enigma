@@ -22,6 +22,7 @@ module.exports = async(req, res) => {
         confidence
       FROM utterances
       WHERE transcription_id = ?
+      ORDER BY seq ASC
     `;
     const [results] = await mysql.query(sql, req.params.id);
     res.status(200).json(results);
