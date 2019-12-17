@@ -11,6 +11,7 @@ module.exports = async(req, res) => {
         description,
         freeswitch_ip
       FROM conferences
+      ORDER BY meeting_pin ASC
     `;
     const [results] = await mysql.query(sql);
     res.status(200).json(results);
