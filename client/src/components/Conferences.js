@@ -121,7 +121,6 @@ class Conferences extends Component {
       this.closeAllMenus();
     });
     window.addEventListener('keydown', (e) => {
-      console.log(e);
       if (e.key === 'Escape' || e.key === 'Esc') {
         this.setState({
           modalDisplayed: '',
