@@ -89,11 +89,11 @@ function handler({logger}) {
       logger.info(`selected freeswitch media server at ${ms.address}`);
       const {endpoint, dialog} = await ms.connectCaller(req, res);
 
-      const { digits } = await endpoint.playCollect({ file: 'conf/conf-enter_conf_number.wav', min: 1, max: 15 });
+      const { digits } = await endpoint.playCollect({ file: config.get('prompts').welcome, min: 1, max: 15 });
 
       const { id, meeting_pin, statusCode, freeswitch_ip } = await api_join_conference(digits);
 
-      if (statusCode == 404 || (statusCode == 201 && freeswitch_ip == null)) {
+      if (statusCode == 201 && freeswitch_ip == null) {
         await create_new_fs_conference(req, ms, endpoint, meeting_pin);
       }
 

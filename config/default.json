@@ -19,6 +19,9 @@
     "port": 9070,
     "secret": "ClueCon"
   }],
+  "prompts": {
+    "welcome": "conf/conf-enter_conf_number.wav"
+  },
   "deepgram-websocket-server": {
     "host": "http://127.0.0.1",
     "port": 3001
