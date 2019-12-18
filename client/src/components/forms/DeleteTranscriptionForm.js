@@ -1,11 +1,15 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import Modal from '../../styles/Modal';
+import Button, { ButtonContainer } from '../../styles/Button';
+import ErrorMessage from '../../styles/ErrorMessage';
+import DescriptiveTable from '../../styles/DescriptiveTable';
+import { datetime } from '../../util/date-format';
 
 class DeleteTranscriptionForm extends Component {
   constructor() {
     super();
     this.state = {
-      id: null,
       errorMessage: '',
     }
     this.handleChange = this.handleChange.bind(this);
@@ -19,30 +23,43 @@ class DeleteTranscriptionForm extends Component {
   }
   async handleSubmit(e) {
     e.preventDefault();
-    await axios.delete(`/api/trans/${this.state.id}`);
+    await axios.delete(`/api/trans/${this.props.transcription.id}`);
     this.props.complete();
   }
   handleCancel() {
     this.props.cancel();
   }
-  componentDidMount() {
-    this.setState({
-      id: this.props.transcription.id,
-    })
-  }
   render() {
     return (
-      <div>
-        <h2>Delete Transcription</h2>
-        <form onSubmit={this.handleSubmit}>
-          <p>From Conference: {this.props.conference.meeting_pin}: {this.props.conference.description}</p>
-          <p>Transcription start time: {this.props.transcription.time_start}</p>
-          <p>Transcription end time: {this.props.transcription.time_end || '[Still in progress]'}</p>
-          <p>WARNING: This will delete the transcription (and recordings?).</p>
-          <button onClick={this.handleCancel}>Cancel</button>
-          <button>Delete</button>
-        </form>
-      </div>
+      <Modal.Background>
+        <Modal.Foreground>
+          <Modal.Header>Delete Transcription</Modal.Header>
+          <form onSubmit={this.handleSubmit}>
+            <DescriptiveTable.Table>
+              <tbody>
+                <tr>
+                  <DescriptiveTable.LightTd>Conference:</DescriptiveTable.LightTd>
+                  <td>{this.props.conference.meeting_pin}: {this.props.conference.description}</td>
+                </tr>
+                <tr>
+                  <DescriptiveTable.LightTd>Start time:</DescriptiveTable.LightTd>
+                  <td>{datetime(this.props.transcription.time_start)}</td>
+                </tr>
+                <tr>
+                  <DescriptiveTable.LightTd>End time:</DescriptiveTable.LightTd>
+                  <td>{datetime(this.props.transcription.time_end) || 'Still in progress'}</td>
+                </tr>
+              </tbody>
+            </DescriptiveTable.Table>
+            <ErrorMessage>WARNING: This will delete the transcription (and recordings?).</ErrorMessage>
+            <ButtonContainer style={{marginTop: '0.7rem'}}>
+              <Button gray onClick={this.handleCancel}>Cancel</Button>
+              <Button danger>Delete</Button>
+            </ButtonContainer>
+
+          </form>
+        </Modal.Foreground>
+      </Modal.Background>
     );
   }
 }

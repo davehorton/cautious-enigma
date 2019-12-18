@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import Modal from '../../styles/Modal';
+import Button, { ButtonContainer } from '../../styles/Button';
+import ErrorMessage from '../../styles/ErrorMessage';
+import DescriptiveTable from '../../styles/DescriptiveTable';
 
 class DeleteConferenceForm extends Component {
   constructor() {
     super();
     this.state = {
-      title: '',
-      id: null,
       errorMessage: '',
     }
     this.handleChange = this.handleChange.bind(this);
@@ -20,34 +22,38 @@ class DeleteConferenceForm extends Component {
   }
   async handleSubmit(e) {
     e.preventDefault();
-    await axios.delete(`/api/conf/${this.state.id}`);
+    await axios.delete(`/api/conf/${this.props.conf.id}`);
     this.props.complete();
   }
   handleCancel() {
     this.props.cancel();
   }
-  componentDidMount() {
-    if (this.props.conf) {
-      this.setState({
-        title: `${this.props.conf.meeting_pin}: ${this.props.conf.description}`,
-        id: this.props.conf.id,
-      })
-    } else {
-      this.setState({
-        title: 'Add Conference',
-      })
-    }
-  }
   render() {
     return (
-      <div>
-        <h2>Delete Conference {this.state.title}</h2>
-        <form onSubmit={this.handleSubmit}>
-          <p>WARNING: This will delete all transcriptions (and recordings?) associated with this conference.</p>
-          <button onClick={this.handleCancel}>Cancel</button>
-          <button>Delete</button>
-        </form>
-      </div>
+      <Modal.Background>
+        <Modal.Foreground>
+          <Modal.Header>Delete Conference</Modal.Header>
+          <form onSubmit={this.handleSubmit}>
+            <DescriptiveTable.Table>
+              <tbody>
+                <tr>
+                  <DescriptiveTable.LightTd>Meeting PIN:</DescriptiveTable.LightTd>
+                  <td>{this.props.conf.meeting_pin}</td>
+                </tr>
+                <tr>
+                  <DescriptiveTable.LightTd>Description:</DescriptiveTable.LightTd>
+                  <td>{this.props.conf.description}</td>
+                </tr>
+              </tbody>
+            </DescriptiveTable.Table>
+            <ErrorMessage>WARNING: This will delete all transcriptions (and recordings?) associated with this conference.</ErrorMessage>
+            <ButtonContainer style={{marginTop: '0.7rem'}}>
+              <Button gray onClick={this.handleCancel}>Cancel</Button>
+              <Button danger>Delete</Button>
+            </ButtonContainer>
+          </form>
+        </Modal.Foreground>
+      </Modal.Background>
     );
   }
 }
