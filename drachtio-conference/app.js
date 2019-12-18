@@ -25,4 +25,4 @@ srf.on('connect', async(err, hp) => {
 srf.on('error', (err) => logger.error(err));
 
 
-srf.invite(require('./lib/invite')({logger}));
+srf.invite(require('./drachtio-conference/lib/invite')({logger}));

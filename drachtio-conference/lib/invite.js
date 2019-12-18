@@ -2,6 +2,7 @@ const assert = require('assert');
 const config = require('config');
 const parseUri = require('drachtio-srf').parseUri;
 const request = require('request-promise');
+const api_server = config.get('api-server');
 
 module.exports = handler;
 
@@ -11,7 +12,7 @@ async function create_new_fs_conference(req, ms, endpoint, meeting_pin) {
     // TODO this is giving an error if I pass any parameters
     // but I am following the API:
     // https://davehorton.github.io/drachtio-fsmrf/api/MediaServer.html#createConference
-    const conference = await ms.createConference(meeting_pin);
+    const conference = await ms.createConference();
 
     // add to media server object to getSize and update API on 0 participants
     ms.local.meeting_pin = conference;
@@ -50,10 +51,9 @@ async function create_new_fs_conference(req, ms, endpoint, meeting_pin) {
 
 async function api_join_conference(meeting_pin) {
   try {
-    assert.equal(typeof meetingPin, 'string', 'argument \'meetingPin\' must be provided to request_join_conference function');
+    assert.equal(typeof meeting_pin, 'string', 'argument \'meeting_pin\' must be provided to request_join_conference function');
 
-    const api_server = config.get('api-server');
-    const conference_api_uri = `${api_server.host}:${api_server.port}/voip/join-conference/${meeting_pin}`;
+    const conference_api_uri = `${api_server.host}:${api_server.port}/api/voip/join-conference/${meeting_pin}`;
 
     const options = {
       method: 'POST',
@@ -71,10 +71,25 @@ async function api_join_conference(meeting_pin) {
   }
 }
 
-async function api_end_transaction() {
+async function api_end_transcription(meeting_pin) {
   // "voip/end-transcription/555"
   // OR
   // stick them in the database from here
+  try {
+    assert.equal(typeof meeting_pin, 'string', 'argument \'meeting_pin\' must be provided to request_join_conference function');
+
+    const conference_api_uri = `${api_server.host}:${api_server.port}/api/voip/end-transcription/${meeting_pin}`;
+
+    const options = {
+      method: 'PUT',
+      uri: conference_api_uri
+    };
+    const response = await request(options);
+    console.log(response);
+    return response;
+  } catch (error) {
+    throw error;
+  }
 }
 
 function handler({logger}) {
@@ -87,7 +102,7 @@ function handler({logger}) {
       const ms = mediaservers[0];
       ms.locals = {};
       logger.info(`selected freeswitch media server at ${ms.address}`);
-      const {endpoint, dialog} = await ms.connectCaller(req, res);
+      const { endpoint, dialog } = await ms.connectCaller(req, res);
 
       const { digits } = await endpoint.playCollect({ file: config.get('prompts').welcome, min: 1, max: 15 });
 
@@ -105,8 +120,6 @@ function handler({logger}) {
           logger.error(uri, `Received error joining conference: ${JSON.stringify(error)}`);
           logger.info(uri, 'Conference does not exist. Going to create a new conference and join it.');
           await create_new_fs_conference(req, ms, endpoint, meeting_pin);
-          // TODO update database with new conference
-          // OR hit /conf api?
         }
       }
 
@@ -116,6 +129,7 @@ function handler({logger}) {
           const conference = ms.locals.meeting_id;
           conference.destroy();
           // update API end-transaction
+          api_end_transcription(meeting_id);
         }
         endpoint.destroy();
       });
