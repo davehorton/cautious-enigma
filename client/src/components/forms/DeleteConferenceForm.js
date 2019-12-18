@@ -14,6 +14,10 @@ class DeleteConferenceForm extends Component {
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleCancel = this.handleCancel.bind(this);
+    this.stopPropagation = this.stopPropagation.bind(this);
+  }
+  stopPropagation(e) {
+    e.stopPropagation();
   }
   handleChange(e) {
     this.setState({
@@ -31,7 +35,7 @@ class DeleteConferenceForm extends Component {
   render() {
     return (
       <Modal.Background>
-        <Modal.Foreground>
+        <Modal.Foreground onClick={this.stopPropagation}>
           <Modal.Header>Delete Conference</Modal.Header>
           <form onSubmit={this.handleSubmit}>
             <DescriptiveTable.Table>
