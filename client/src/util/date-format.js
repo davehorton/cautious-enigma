@@ -21,19 +21,34 @@ const breakDownDate = (originalDate) => {
       : hour
 
   return { year, mon, date, hour, min, sec, ampm }
-}
+};
 
 const datetime = (date) => {
+  if (!date) return false;
   const d = breakDownDate(date);
   return `${d.year}-${d.mon}-${d.date} ${d.hour}:${d.min}${d.ampm}`
 };
 
 const timeOnly = (date) => {
+  if (!date) return false;
   const d = breakDownDate(date);
   return `${d.hour}:${d.min}${d.ampm}`
 };
 
+const timeWithSeconds = (date) => {
+  if (!date) return false;
+  const d = breakDownDate(date);
+  return `${d.hour}:${d.min}:${d.sec}${d.ampm}`
+};
+
+const dateOnly = (date) => {
+  if (!date) return false;
+  const d = breakDownDate(date);
+  return `${d.year}-${d.mon}-${d.date}`
+};
+
 const isSameDate = (date1, date2) => {
+  if (!date1 || !date2) return false;
   const d1 = new Date(date1);
   const d2 = new Date(date2);
   const d1obj = breakDownDate(d1);
@@ -47,22 +62,25 @@ const isSameDate = (date1, date2) => {
   } else {
     return false;
   }
-}
+};
 
 const timeDifference = (date1, date2) => {
-  if (!date1 || !date2) {
-    return false;
-  }
+  if (!date1 || !date2) return false;
   const d1 = new Date(date1);
   const d2 = new Date(date2);
-  const diffMil = Math.abs(d1 - d2);
-  const diffSec = Math.round(diffMil / 1000);
-  const days = Math.floor(diffSec / 86400);
-  const secAfterDays = diffSec % 86400;
+  const milliseconds = Math.abs(d1 - d2);
+  const seconds = Math.round(milliseconds / 1000);
+  return seconds;
+};
+
+const formatTimeDuration = (durationInSeconds) => {
+  if (!durationInSeconds) return false;
+  const days = Math.floor(durationInSeconds / 86400);
+  const secAfterDays = durationInSeconds % 86400;
   const hours = Math.floor(secAfterDays / 3600);
   const secAfterHours = secAfterDays % 3600;
   const min = Math.floor(secAfterHours / 60);
-  const sec = secAfterHours % 60;
+  const sec = Math.round(secAfterHours % 60);
   return `` +
     `${days ? `${days}d ` : ''}` +
     `${hours ? `${hours}h ` : ''}` +
@@ -70,4 +88,20 @@ const timeDifference = (date1, date2) => {
     `${sec ? `${sec}s ` : ''}`;
 };
 
-export { datetime, timeOnly, timeDifference, isSameDate };
+const getTimeOffset = (date, offset) => {
+  if (!date || !offset) return false;
+  const d = new Date(date);
+  const updatedDate = d.setSeconds(d.getSeconds() + parseFloat(offset));
+  return updatedDate;
+};
+
+export {
+  datetime,
+  timeOnly,
+  timeWithSeconds,
+  dateOnly,
+  isSameDate,
+  timeDifference,
+  formatTimeDuration,
+  getTimeOffset,
+};

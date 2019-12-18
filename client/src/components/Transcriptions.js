@@ -1,7 +1,20 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import DeleteTranscriptionForm from './forms/DeleteTranscriptionForm';
-import { datetime, timeOnly, isSameDate } from '../util/date-format';
+import { datetime, formatTimeDuration, timeDifference } from '../util/date-format';
+import Main from '../styles/Main';
+import H1 from '../styles/H1';
+import A from '../styles/A';
+import Table from '../styles/Table';
+import Menu from '../styles/Menu';
+import Select from '../styles/Select';
+import styled from 'styled-components';
+
+const Header = styled.header`
+  @media (max-width: 700px) {
+    padding: 0.5rem;
+  }
+`;
 
 class Transcriptions extends Component {
   constructor() {
@@ -9,14 +22,17 @@ class Transcriptions extends Component {
     this.state = {
       confInfo: {},
       transcriptions: [],
+      rowHighlighted: null,
       modalDisplayed: '',
       transcriptionBeingModified: null,
     }
+    this.closeAllMenus = this.closeAllMenus.bind(this);
     this.cancelForm = this.cancelForm.bind(this);
     this.refreshAfterSave = this.refreshAfterSave.bind(this);
     this.sortReverse = this.sortReverse.bind(this);
   }
-  toggleTransMenu(id) {
+  toggleTransMenu(id, e) {
+    e.stopPropagation();
     this.setState(state => ({
       transcriptions: state.transcriptions.map(t => {
         if (t.id === id) {
@@ -30,10 +46,19 @@ class Transcriptions extends Component {
             showMenu: false,
           }
         }
-      })
+      }),
+      rowHighlighted: state.rowHighlighted === id ? null : id,
     }));
   }
-  deleteTranscription(trans) {
+  closeAllMenus(e) {
+    const menusClosed = this.state.transcriptions.map(t => ({
+      ...t,
+      showMenu: false,
+    }));
+    this.setState(state => ({ transcriptions: menusClosed }));
+  }
+  deleteTranscription(trans, e) {
+    e.stopPropagation();
     this.setState(state => ({
       modalDisplayed: 'deleteTranscription',
       transcriptionBeingModified: trans,
@@ -69,6 +94,22 @@ class Transcriptions extends Component {
     })
   }
   async componentDidMount() {
+    window.addEventListener('click', () => {
+      this.setState({
+        modalDisplayed: '',
+        rowHighlighted: null,
+      });
+      this.closeAllMenus();
+    });
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        this.setState({
+          modalDisplayed: '',
+          rowHighlighted: null,
+        });
+        this.closeAllMenus();
+      }
+    });
     const confId = this.props.match.params.id;
     const confInfo = await axios.get(`/api/conf/${confId}`);
     const transcriptions = await axios.get(`/api/conf/${confId}/trans`)
@@ -79,111 +120,93 @@ class Transcriptions extends Component {
   }
   render() {
     return (
-      <div>
-        <a href='/'>&lt; Back to Conferences</a>
+      <Main>
+        <Header>
+          <A href='/'>&lt; Back to Conferences</A>
+          {
+            this.state.modalDisplayed === 'deleteTranscription'
+              ? <DeleteTranscriptionForm
+                  transcription={this.state.transcriptionBeingModified}
+                  conference={this.state.confInfo}
+                  cancel={this.cancelForm}
+                  complete={this.refreshAfterSave}
+                />
+              : null
+          }
+          <H1>
+            Conference
+            {' '}
+            {this.state.confInfo.meeting_pin}:
+            {' '}
+            {this.state.confInfo.description}
+          </H1>
+          <Select.Container>
+            <Select.Label htmlFor="sort">Sort</Select.Label>
+            <Select.Select id="sort" name="sort" onChange={this.sortReverse}>
+              <option value="newestFirst">Newest First</option>
+              <option value="oldestFirst">Oldest First</option>
+            </Select.Select>
+          </Select.Container>
+        </Header>
         {
-          this.state.modalDisplayed === 'deleteTranscription'
-            ? <DeleteTranscriptionForm
-                transcription={this.state.transcriptionBeingModified}
-                conference={this.state.confInfo}
-                cancel={this.cancelForm}
-                complete={this.refreshAfterSave}
-              />
-            : null
-        }
-        <h1>
-          Conference
-          {' '}
-          {this.state.confInfo.meeting_pin}:
-          {' '}
-          {this.state.confInfo.description}
-        </h1>
-        <h2>Transcriptions</h2>
-        <form>
-          <label htmlFor="sort">Sort</label>
-          <select name="sort" onChange={this.sortReverse}>
-            <option value="newestFirst">Newest First</option>
-            <option value="oldestFirst">Oldest First</option>
-          </select>
-        </form>
-        <table>
-          <thead>
-            <tr>
-              <th>Start Time</th>
-              <th>End Time</th>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              this.state.transcriptions.map(t => (
-                <tr key={t.id}>
+          this.state.transcriptions.length
+            ? <Table.Table>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th center colSpan="2">Transcriptions</Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <tbody>
                   {
-                    isSameDate(t.time_start, t.time_end)
-                      ? <React.Fragment>
-                          <td>
-                            <a href={`/conf/${this.props.match.params.id}/trans/${t.id}`}>
-                              {datetime(t.time_start)}
-                            </a>
-                          </td>
-                          <td>
-                            <a href={`/conf/${this.props.match.params.id}/trans/${t.id}`}>
-                              {
-                                t.time_end
-                                  ? timeOnly(t.time_end)
-                                  : 'In progress'
-                              }
-                            </a>
-                          </td>
-                        </React.Fragment>
-                      : <React.Fragment>
-                          <td>
-                            <a href={`/conf/${this.props.match.params.id}/trans/${t.id}`}>
-                             {datetime(t.time_start)}
-                            </a>
-                          </td>
-                          <td>
-                            <a href={`/conf/${this.props.match.params.id}/trans/${t.id}`}>
-                              {
-                                t.time_end
-                                  ? datetime(t.time_end)
-                                  : 'In progress'
-                              }
-                            </a>
-                          </td>
-                        </React.Fragment>
+                    this.state.transcriptions.map(t => (
+                      <Table.Tr
+                        key={t.id}
+                        forceHighlight={this.state.rowHighlighted === t.id}
+                        allowHighlight={!this.state.rowHighlighted}
+                      >
+                        <Table.Td grow>
+                          <Table.A href={`/conf/${this.props.match.params.id}/trans/${t.id}`}>
+                            {datetime(t.time_start)}
+                            {
+                              t.time_end
+                                ? ` (${formatTimeDuration(timeDifference(t.time_start, t.time_end))})`
+                                : <Table.Span blue>In Progress</Table.Span>
+                            }
+                          </Table.A>
+                        </Table.Td>
+                        <Table.Td>
+                          <Table.Button
+                            onClick={this.toggleTransMenu.bind(this, t.id)}
+                            disabled={this.state.modalDisplayed}
+                          >
+                            &#9776;
+                          </Table.Button>
+                          {
+                            t.showMenu
+                              ? <Menu.Menu>
+                                  <Menu.Link as="a" href={`/conf/${this.props.match.params.id}/trans/${t.id}`}>
+                                    View transcription
+                                  </Menu.Link>
+                                  <Menu.Link
+                                    onClick={this.deleteTranscription.bind(this, t)}
+                                    disabled={this.state.modalDisplayed}
+                                  >
+                                    Delete Transcription
+                                  </Menu.Link>
+                                </Menu.Menu>
+                              : null
+                          }
+                        </Table.Td>
+                      </Table.Tr>
+                    ))
                   }
-                  <td>
-
-                  </td>
-                  <td>
-                    <button
-                      onClick={this.toggleTransMenu.bind(this, t.id)}
-                      disabled={this.state.modalDisplayed}
-                    >
-                      &#9776;
-                    </button>
-                    {
-                      t.showMenu
-                        ? <div>
-                            <a href={`/conf/${this.props.match.params.id}/trans/${t.id}`}>
-                              View transcription
-                            </a>
-                            <button
-                              onClick={this.deleteTranscription.bind(this, t)}
-                              disabled={this.state.modalDisplayed}
-                            >
-                              Delete Transcription
-                            </button>
-                          </div>
-                        : null
-                    }
-                  </td>
-                </tr>
-              ))
-            }
-          </tbody>
-        </table>
-      </div>
+                </tbody>
+              </Table.Table>
+            : <h3>
+                There are no transcriptions for this conference
+              </h3>
+          }
+      </Main>
     );
   }
 }
