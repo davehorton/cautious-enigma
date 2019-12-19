@@ -74,11 +74,11 @@ class ConferenceHandler extends Emitter {
 
       const { digits } = await endpoint.playCollect({ file: config.get('prompts').welcome, min: 1, max: 15 });
 
-      const { id, meeting_pin, statusCode, freeswitch_ip } = await api_join_conference(digits, this.mediaserver.address);
+      const { meeting_pin, freeswitch_ip } = await api_join_conference(digits, this.mediaserver.address);
 
-      if (statusCode === 201 && freeswitch_ip === null) {
+      if (freeswitch_ip === null) {
         this.create_new_fs_conference(endpoint, meeting_pin);
-      } else if (statusCode === 200) {
+      } else {
         try {
           const conference = this.mediaserver.locals.meeting_pin;
           await endpoint.join(conference);
