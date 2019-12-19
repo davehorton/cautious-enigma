@@ -28,16 +28,16 @@ srf.on('error', (err) => logger.error(err));
 srf.invite(async(req, res) => {
     const mediaservers = srf.locals.lb.getLeastLoaded();
     const mediaserver = mediaservers[0];
-    logger.info(`selected freeswitch media server at ${this.mediaserver.address}`);
-    this.mediaserver.locals = {};
+    logger.info(`selected freeswitch media server at ${mediaserver.address}`);
+    mediaserver.locals = {};
     const conference_handler = new ConferenceHandler({ logger, mediaserver, req, res });
     try {
       conference_handler.exec();
       conference_handler
-        .on('conference::empty', async(meeting_id) => {
+        .on('conference::empty', (meeting_id) => {
           logger.info('last participant left conference');
           // update API end-transaction
-          await api_end_transcription(meeting_id);
+          api_end_transcription(meeting_id);
         });
     } catch (error) {
       logger.error(`ERROR: ${error}`);
