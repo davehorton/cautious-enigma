@@ -11,16 +11,16 @@
   },
   "drachtio": {
     "host": "127.0.0.1",
-    "port": 9060,
+    "port": 9022,
     "secret": "cymru"
   },
   "freeswitch": [{
     "address": "127.0.0.1",
-    "port": 9070,
+    "port": 8021,
     "secret": "ClueCon"
   }],
   "prompts": {
-    "welcome": "conf/conf-enter_conf_number.wav"
+    "welcome": "conference/conf-enter_conf_number.wav"
   },
   "deepgram-websocket-server": {
     "host": "http://127.0.0.1",
