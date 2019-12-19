@@ -5,6 +5,7 @@ const api_join_conference = require('./api-join-conference');
 
 class ConferenceHandler extends Emitter {
   constructor(opts) {
+    super();
     this.logger = opts.logger;
     this.srf = opts.req.srf;
     this.req = opts.req;
