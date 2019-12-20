@@ -39,6 +39,7 @@ srf.invite(async(req, res) => {
           logger.info('last participant left conference');
           // update API end-transaction
           api_end_transcription(meeting_id);
+          // TODO delete IP from database? Or does the end-transcription api do that?
         })
         .on('conference::utterance', (event) => {
           logger.info('received utterance. Sending to API.');
