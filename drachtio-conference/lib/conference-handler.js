@@ -2,7 +2,6 @@ const Emitter = require('events');
 const config = require('config');
 const parseUri = require('drachtio-srf').parseUri;
 const api_join_conference = require('./api-join-conference');
-const api_add_utterance = require('./api-add-utterance');
 
 class ConferenceHandler extends Emitter {
   constructor(opts) {
@@ -83,8 +82,7 @@ class ConferenceHandler extends Emitter {
           reject(error);
         }
       });
-      };
-    }
+    };
   }
 
   async exec() {
