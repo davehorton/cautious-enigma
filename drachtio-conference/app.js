@@ -6,6 +6,7 @@ const Mrf = require('drachtio-fsmrf');
 const mrf = new Mrf(srf);
 const { LoadBalancer } = require('drachtio-fn-fsmrf-sugar');
 const api_end_transcription = require('./lib/api-end-transcription');
+const api_add_utterance = require('./lib/api-add-utterance');
 const ConferenceHandler = require('./lib/conference-handler');
 
 srf.connect(config.get('drachtio'));
@@ -38,6 +39,19 @@ srf.invite(async(req, res) => {
           logger.info('last participant left conference');
           // update API end-transaction
           api_end_transcription(meeting_id);
+        })
+        .on('conference::utterance', (event) => {
+          logger.info('received utterance. Sending to API.');
+          const meeting_pin = event.meeting_pin;
+          const utterance = event.utterance;
+          api_add_utterance(meeting_pin, utterance);
+        })
+        .on('conference::audio_fork_failed', (meeting_pin) => {
+          logger.info(`audio_fork failed in conference ${meeting_pin}`);
+          // what to do here? 
+          // Play audio to conference participants
+          // Destroy conference
+          // send email/alert
         });
     } catch (error) {
       logger.error(`ERROR: ${error}`);

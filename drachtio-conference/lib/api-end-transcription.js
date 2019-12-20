@@ -8,7 +8,7 @@ module.export = async(meeting_pin) => {
   // OR
   // stick them in the database from here
   try {
-    assert.equal(typeof meeting_pin, 'string', 'argument \'meeting_pin\' must be provided to request_join_conference function');
+    assert.equal(typeof meeting_pin, 'string', 'argument \'meeting_pin\' must be string');
 
     const conference_api_uri = `${api_server.host}:${api_server.port}/api/voip/end-transcription/${meeting_pin}`;
 

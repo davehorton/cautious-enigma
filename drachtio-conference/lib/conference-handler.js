@@ -2,6 +2,7 @@ const Emitter = require('events');
 const config = require('config');
 const parseUri = require('drachtio-srf').parseUri;
 const api_join_conference = require('./api-join-conference');
+const api_add_utterance = require('./api-add-utterance');
 
 class ConferenceHandler extends Emitter {
   constructor(opts) {
@@ -13,7 +14,7 @@ class ConferenceHandler extends Emitter {
     this.mediaserver = opts.mediaserver;
 
     this.create_new_fs_conference = (endpoint, meeting_pin) => {
-      return async() => {
+      return new Promise(async(resolve, reject) => {
         try {
           // 1. createConference
           // TODO this is giving an error if I pass any parameters
@@ -47,7 +48,24 @@ class ConferenceHandler extends Emitter {
           const wsStreamEndpoint = await this.mediaserver.createEndpoint();
           this.logger.info('#ConferenceHandler: this.create_new_fs_conference() - bridge streaming endpoint with conference endpoint')
           await wsStreamEndpoint.bridge(wsConfEndpoint);
-      
+
+          wsStreamEndpoint.addCustomEventListener('mod_audio_fork::connect', (event) => { 
+            this.logger.info(`#ConferenceHandler: this.create_new_fs_conference() - successfully connected to websocket server`);
+            this.logger.info(`#ConferenceHandler: this.create_new_fs_conference() - ${JSON.stringify(event)}`); 
+          });
+
+          wsStreamEndpoint.addCustomEventListener('mod_audio_fork::transcription', async(event) => {
+            this.logger.info(`#ConferenceHandler: this.create_new_fs_conference() - received mod_audio_fork::transcription event`);
+            this.emit('conference::utterance', { meeting_pin: meeting_pin, utterance: event.data });
+          });
+
+          // failure
+          wsStreamEndpoint.addCustomEventListener('mod_audio_fork::connect_failed', (event) => {
+            this.logger.error('#ConferenceHandler: this.create_new_fs_conference() - received mod_audio_fork::connect_failed event');
+            this.logger.error(`#ConferenceHandler: this.create_new_fs_conference() - ${JSON.stringify(event)}`);
+            this.emit('conference::audio_fork_failed', meeting_pin);
+          });
+
           // fork conference audio between the two endpoints to the websocket server
           const wsServer = config.get('deepgram-websocket-server');
           const url = `${wsServer.host}:${wsServer.port}`;
@@ -59,11 +77,14 @@ class ConferenceHandler extends Emitter {
             sampling: '16k',
             metaData
           });
+
+          resolve(wsStreamEndpoint);
         } catch (error) {
-          throw error;
+          reject(error);
         }
+      });
       };
-    };
+    }
   }
 
   async exec() {
@@ -77,7 +98,7 @@ class ConferenceHandler extends Emitter {
       const { meeting_pin, freeswitch_ip } = await api_join_conference(digits, this.mediaserver.address);
 
       if (freeswitch_ip === null) {
-        this.create_new_fs_conference(endpoint, meeting_pin);
+        await this.create_new_fs_conference(endpoint, meeting_pin);
       } else {
         try {
           const conference = this.mediaserver.locals.meeting_pin;
@@ -85,7 +106,7 @@ class ConferenceHandler extends Emitter {
         } catch (error) {
           this.logger.error(uri, `Received error joining conference: ${JSON.stringify(error)}`);
           this.logger.info(uri, 'Conference does not exist. Going to create a new conference and join it.');
-          this.create_new_fs_conference(endpoint, meeting_pin);
+          await this.create_new_fs_conference(endpoint, meeting_pin);
         }
       }
 
