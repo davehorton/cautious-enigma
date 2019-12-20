@@ -25,4 +25,4 @@ module.export = async(meeting_pin, utterance) => {
   } catch (error) {
     throw error;
   }
-}
+};

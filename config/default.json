@@ -20,7 +20,9 @@
     "secret": "ClueCon"
   }],
   "prompts": {
-    "welcome": "conference/conf-enter_conf_number.wav"
+    "welcome": "conference/conf-enter_conf_number.wav",
+    "error": "conference/conf-bad-pin.wav",
+    "goodbye": "conference/conf-goodbye.wav"
   },
   "deepgram-websocket-server": {
     "host": "http://127.0.0.1",

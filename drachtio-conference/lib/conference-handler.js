@@ -20,14 +20,14 @@ class ConferenceHandler extends Emitter {
           // but I am following the API:
           // https://davehorton.github.io/drachtio-fsmrf/api/MediaServer.html#createConference
           this.logger.info(`#ConferenceHandler: this.create_new_fs_conference() - Creating conference for ${meeting_pin}`);
-          const conference = await this.mediaserver.createConference();
+          const conference = await this.mediaserver.createConference(meeting_pin);
       
           // add to media server object to getSize and update API on 0 participants
           this.logger.info('#ConferenceHandler: this.create_new_fs_conference() - Saving conference object to mediaserver.locals object');
           this.mediaserver.locals.meeting_pin = conference;
       
           // 2. join endpoint to the conference
-          await endpoint.join(conference);
+          await endpoint.join(meeting_pin);
           this.logger.info('#ConferenceHandler: this.create_new_fs_conference() - connected endpoint to conference');
           // 3. start recording
           const date = new Date();
@@ -40,7 +40,7 @@ class ConferenceHandler extends Emitter {
           this.logger.info('#ConferenceHandler: this.create_new_fs_conference() - creating conference endpoint for WS server');
           const wsConfEndpoint = await this.mediaserver.createEndpoint();
           this.logger.info('#ConferenceHandler: this.create_new_fs_conference() - connecting WS endpoint to conference');
-          await wsConfEndpoint.join(conference);
+          await wsConfEndpoint.join(meeting_pin);
       
           // create endpoint that bridges with the conference endpoint
           this.logger.info('#ConferenceHandler: this.create_new_fs_conference() - creating streaming endpoint for WS server');
@@ -87,9 +87,14 @@ class ConferenceHandler extends Emitter {
 
   async exec() {
     const uri = parseUri(this.req.uri);
+    let dialog;
+    let endpoint;
     this.logger.info(uri, `received ${this.req.method} from ${this.req.protocol}/${this.req.source_address}:${this.req.source_port}`);
     try {
-      const { endpoint, dialog } = await this.mediaserver.connectCaller(this.req, this.res);
+      const callerObject = await this.mediaserver.connectCaller(this.req, this.res);
+
+      dialog = callerObject.dialog;
+      endpoint = callerObject.endpoint;
 
       const { digits } = await endpoint.playCollect({ file: config.get('prompts').welcome, min: 1, max: 15 });
 
@@ -99,8 +104,7 @@ class ConferenceHandler extends Emitter {
         await this.create_new_fs_conference(endpoint, meeting_pin);
       } else {
         try {
-          const conference = this.mediaserver.locals.meeting_pin;
-          await endpoint.join(conference);
+          await endpoint.join(meeting_pin);
         } catch (error) {
           this.logger.error(uri, `Received error joining conference: ${JSON.stringify(error)}`);
           this.logger.info(uri, 'Conference does not exist. Going to create a new conference and join it.');
@@ -120,11 +124,14 @@ class ConferenceHandler extends Emitter {
         }
         endpoint.destroy();
       });
-    } catch (err) {
-      this.logger.error(err, '#handle - Error connecting to conference');
+    } catch (error) {
+      this.logger.error(error, '#handle - Error connecting to conference');
       // TODO need to be able to handle destroying
       // endpoint or dialog here
-      throw err;
+      await endpoint.play(`${config.get('prompts').error}`);
+      await endpoint.play(`${config.get('prompts').goodbye}`);
+      dialog.destroy();
+      this.emit('error', error);
     }
   }
 } 

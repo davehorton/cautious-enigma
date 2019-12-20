@@ -52,6 +52,9 @@ srf.invite(async(req, res) => {
           // Play audio to conference participants
           // Destroy conference
           // send email/alert
+        })
+        .on('error', (error) => {
+          logger.error(`Error: ${error}`);
         });
     } catch (error) {
       logger.error(`ERROR: ${error}`);
