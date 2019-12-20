@@ -31,9 +31,9 @@ class ConferenceHandler extends Emitter {
           this.logger.info('#ConferenceHandler: this.create_new_fs_conference() - connected endpoint to conference')
           // 3. start recording
           const date = new Date();
-          const confRecordingDir = `${__dirname}/recordings/${date.getFullYear()}${date.getMonth()}${date.getDate()}-${meeting_pin}.wav`;
-          this.logger.info(`#ConferenceHandler: this.create_new_fs_conference() - start recording to file: ${confRecordingDir}`)
-          await conference.startRecording();
+          const confRecordingPath = `${__dirname}/recordings/${date.getFullYear()}${date.getMonth()}${date.getDate()}-${meeting_pin}.wav`;
+          this.logger.info(`#ConferenceHandler: this.create_new_fs_conference() - start recording to file: ${confRecordingPath}`)
+          await conference.startRecording(confRecordingPath);
       
           // 4. connect mod_audio_fork to WebSocket server
           // create endpoint connected to the conference
