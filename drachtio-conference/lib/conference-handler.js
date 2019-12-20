@@ -101,14 +101,14 @@ class ConferenceHandler extends Emitter {
       const { meeting_pin, freeswitch_ip } = await api_join_conference(digits, this.mediaserver.address);
 
       if (freeswitch_ip === null) {
-        await this.create_new_fs_conference(endpoint, meeting_pin);
+        await this.create_new_fs_conference(endpoint, meeting_pin.toString());
       } else {
         try {
-          await endpoint.join(meeting_pin);
+          await endpoint.join(meeting_pin.toString());
         } catch (error) {
           this.logger.error(uri, `Received error joining conference: ${JSON.stringify(error)}`);
           this.logger.info(uri, 'Conference does not exist. Going to create a new conference and join it.');
-          await this.create_new_fs_conference(endpoint, meeting_pin);
+          await this.create_new_fs_conference(endpoint, meeting_pin.toString());
         }
       }
 
