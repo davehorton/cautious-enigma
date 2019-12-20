@@ -23,7 +23,7 @@ class ConferenceHandler extends Emitter {
           const conference = await this.mediaserver.createConference(meeting_pin);
 
           // add conference event listeners
-          conference.on('hangup', (event) => {
+          conference.on('del-member', (event) => {
             this.logger.info('#ConferenceHandler: conference hangup event');
             const confSize = event.getHeader('Conference-Size');
             if (confSize) {
