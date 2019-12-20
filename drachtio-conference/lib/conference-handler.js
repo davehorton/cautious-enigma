@@ -96,9 +96,9 @@ class ConferenceHandler extends Emitter {
         // should check if it is the freeswitch that the endpoint is connected on
       }
 
-      this.logger.info(uri, `#ConferenceHandler.exec() - Check for conference.`);
       try {
-        const conference = await this.mediaserver.createConference(meeting_pin);
+        this.logger.info(uri, `#ConferenceHandler.exec() - Check for conference.`);
+        const conference = await this.mediaserver.createConference(meeting_pin.toString());
         console.log(conference);
         // add to media server object to getSize and update API on 0 participants
         this.logger.info(uri, '#ConferenceHandler.exec() - Saving conference object to mediaserver.locals object');
@@ -111,36 +111,44 @@ class ConferenceHandler extends Emitter {
         console.log('now mediaserver.locals object should have this conference objects stored for later');
         console.log(this.mediaserver.locals.meeting_pin);
       } catch (error) {
-        if (error === 'conference exists') {
+        if (error.message.includes('conference exists')) {
           this.logger.info(uri, `#exec: conference exists, we just need to join it`);
-          await endpoint.join(meeting_pin);
+          await endpoint.join(meeting_pin.toString());
           if (this.mediaserver.locals.meeting_pin) {
             console.log('ok, we still have the conference object for later use when everyone hangsup');
           } else {
             console.log(`PROBLEM: this.mediaserver.locals.meeting_pin for ${meeting_pin} is undefined.`);
             console.log('this will cause problems trying to check conference size when people hangup.');
           }
+        } else {
+          throw error;
         }
       }
 
       dialog.on('destroy', async() => {
         this.logger.info('Caller hung up. Checking conference size');
-        const confSize = await this.mediaserver.locals.meeting_pin.conference.getSize();
-        this.logger.info(`conference size is: ${confSize}`);
-        if (confSize === 0) { // could be 1 still for websocket endpoint
-          this.logger.info(uri, 'Last participant left the conference. Updating the API.');
-
-          // destroy websocket endpoints
-          if (this.mediaserver.locals.meeting_pin.websocketEndpoints) {
-            this.logger.info(uri, `Destroying websocket Endpoints for ${meeting_pin}`);
-            this.mediaserver.locals.websocketEndpoints[0].destroy();
-            this.mediaserver.locals.websocketEndpoints[1].destroy();
+        if (this.mediaserver.locals.meeting_pin.conference) {
+          try {
+            const confSize = await this.mediaserver.locals.meeting_pin.conference.getSize();
+            this.logger.info(`conference size is: ${confSize}`);
+            if (confSize === 0) { // could be 1 still for websocket endpoint
+              this.logger.info(uri, 'Last participant left the conference. Updating the API.');
+    
+              // destroy websocket endpoints
+              if (this.mediaserver.locals.meeting_pin.websocketEndpoints) {
+                this.logger.info(uri, `Destroying websocket Endpoints for ${meeting_pin}`);
+                this.mediaserver.locals.websocketEndpoints[0].destroy();
+                this.mediaserver.locals.websocketEndpoints[1].destroy();
+              }
+    
+              // destroy endpoint
+              const conference = this.mediaserver.locals.meeting_pin;
+              conference.destroy();
+              this.emit('conference::empty', meeting_pin);
+            }
+          } catch (error) {
+            this.logger.error(uri, "Could not find Conference object to check size and destroy if empty");
           }
-
-          // destroy endpoint
-          const conference = this.mediaserver.locals.meeting_pin;
-          conference.destroy();
-          this.emit('conference::empty', meeting_pin);
         }
 
         endpoint.destroy();
