@@ -102,6 +102,7 @@ class ConferenceHandler extends Emitter {
         console.log(conference);
         // add to media server object to getSize and update API on 0 participants
         this.logger.info(uri, '#ConferenceHandler.exec() - Saving conference object to mediaserver.locals object');
+        this.mediaserver.locals.meeting_pin = {};
         this.mediaserver.locals.meeting_pin.conference = conference;
         const {wsConfEndpoint, wsEndpoint} = await this.join_fs_conference(conference, endpoint, meeting_pin.toString());
         
