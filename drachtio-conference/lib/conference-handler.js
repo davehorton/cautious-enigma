@@ -12,21 +12,42 @@ class ConferenceHandler extends Emitter {
     this.res = opts.res;
     this.mediaserver = opts.mediaserver;
 
-    this.join_fs_conference = (conference, endpoint, meeting_pin) => {
+    this.create_new_fs_conference = (endpoint, meeting_pin) => {
       return new Promise(async(resolve, reject) => {
-        try {      
-          // join endpoint to the conference
+        try {
+          // 1. createConference
+          // TODO this is giving an error if I pass any parameters
+          // but I am following the API:
+          // https://davehorton.github.io/drachtio-fsmrf/api/MediaServer.html#createConference
+          this.logger.info(`#ConferenceHandler: this.create_new_fs_conference() - Creating conference for ${meeting_pin}`);
+          const conference = await this.mediaserver.createConference(meeting_pin);
+
+          // add conference event listeners
+          conference.on('hangup', (event) => {
+            this.logger.info('#ConferenceHandler: conference hangup event');
+            const confSize = event.getHeader('Conference-Size');
+            if (confSize) {
+              this.logger.info(`#ConferenceHandler - conference size is now ${confSize}`);
+            }
+
+            if (confSize === 1) {
+              this.logger.info('#ConferenceHandler: last participant left conference');
+              // update API end-transaction
+              //api_end_transcription(meeting_id);
+              // TODO delete IP from database? Or does the end-transcription api do that?
+            }
+          });
+      
+          // 2. join endpoint to the conference
           await endpoint.join(meeting_pin);
           this.logger.info('#ConferenceHandler: this.create_new_fs_conference() - connected endpoint to conference');
-          
-          // start recording
+          // 3. start recording
           const date = new Date();
           const confRecordingPath = `${__dirname}/recordings/${date.getFullYear()}${date.getMonth()}${date.getDate()}-${meeting_pin}.wav`;
           this.logger.info(`#ConferenceHandler: this.create_new_fs_conference() - start recording to file: ${confRecordingPath}`);
           await conference.startRecording(confRecordingPath);
       
-          // connect mod_audio_fork to WebSocket server
-
+          // 4. connect mod_audio_fork to WebSocket server
           // create endpoint connected to the conference
           this.logger.info('#ConferenceHandler: this.create_new_fs_conference() - creating conference endpoint for WS server');
           const wsConfEndpoint = await this.mediaserver.createEndpoint();
@@ -39,7 +60,7 @@ class ConferenceHandler extends Emitter {
           this.logger.info('#ConferenceHandler: this.create_new_fs_conference() - bridge streaming endpoint with conference endpoint');
           await wsStreamEndpoint.bridge(wsConfEndpoint);
 
-          // setup event listeners
+          // add websocket event listeners
           wsStreamEndpoint.addCustomEventListener('mod_audio_fork::connect', (event) => { 
             this.logger.info(`#ConferenceHandler: this.create_new_fs_conference() - successfully connected to websocket server`);
             this.logger.info(`#ConferenceHandler: this.create_new_fs_conference() - ${JSON.stringify(event)}`); 
@@ -50,6 +71,7 @@ class ConferenceHandler extends Emitter {
             this.emit('conference::utterance', { meeting_pin: meeting_pin, utterance: event.data });
           });
 
+          // failure
           wsStreamEndpoint.addCustomEventListener('mod_audio_fork::connect_failed', (event) => {
             this.logger.error('#ConferenceHandler: this.create_new_fs_conference() - received mod_audio_fork::connect_failed event');
             this.logger.error(`#ConferenceHandler: this.create_new_fs_conference() - ${JSON.stringify(event)}`);
@@ -68,7 +90,7 @@ class ConferenceHandler extends Emitter {
             metaData
           });
 
-          resolve({wsConfEndpoint, wsStreamEndpoint});
+          resolve(wsStreamEndpoint);
         } catch (error) {
           reject(error);
         }
@@ -80,7 +102,7 @@ class ConferenceHandler extends Emitter {
     const uri = parseUri(this.req.uri);
     let dialog;
     let endpoint;
-    this.logger.info(uri, `#ConferenceHandler.exec() - received ${this.req.method} from ${this.req.protocol}/${this.req.source_address}:${this.req.source_port}`);
+    this.logger.info(uri, `received ${this.req.method} from ${this.req.protocol}/${this.req.source_address}:${this.req.source_port}`);
     try {
       const callerObject = await this.mediaserver.connectCaller(this.req, this.res);
 
@@ -91,67 +113,20 @@ class ConferenceHandler extends Emitter {
 
       const { meeting_pin, freeswitch_ip } = await api_join_conference(digits, this.mediaserver.address);
 
-      if (freeswitch_ip !== null) {
-        this.logger.info(`freeswitch_ip for conference ${meeting_pin} is ${freeswitch_ip}`);
-        // should check if it is the freeswitch that the endpoint is connected on
-      }
-
-      try {
-        this.logger.info(uri, `#ConferenceHandler.exec() - Check for conference.`);
-        const conference = await this.mediaserver.createConference(meeting_pin.toString());
-        console.log(conference);
-        // add to media server object to getSize and update API on 0 participants
-        this.logger.info(uri, '#ConferenceHandler.exec() - Saving conference object to mediaserver.locals object');
-        this.mediaserver.locals.meeting_pin = {};
-        this.mediaserver.locals.meeting_pin.conference = conference;
-        const {wsConfEndpoint, wsEndpoint} = await this.join_fs_conference(conference, endpoint, meeting_pin.toString());
-        
-        // add wsEndpoint to mediaserver conference object to destroy when conference ends
-        this.mediaserver.locals.meeting_pin.websocketEndpoints = [ wsConfEndpoint, wsEndpoint ];
-
-        console.log('now mediaserver.locals object should have this conference objects stored for later');
-        console.log(this.mediaserver.locals.meeting_pin);
-      } catch (error) {
-        if (error.message.includes('conference exists')) {
-          this.logger.info(uri, `#exec: conference exists, we just need to join it`);
+      if (freeswitch_ip === null) {
+        await this.create_new_fs_conference(endpoint, meeting_pin.toString());
+      } else {
+        try {
           await endpoint.join(meeting_pin.toString());
-          if (this.mediaserver.locals.meeting_pin) {
-            console.log('ok, we still have the conference object for later use when everyone hangsup');
-          } else {
-            console.log(`PROBLEM: this.mediaserver.locals.meeting_pin for ${meeting_pin} is undefined.`);
-            console.log('this will cause problems trying to check conference size when people hangup.');
-          }
-        } else {
-          throw error;
+        } catch (error) {
+          this.logger.error(uri, `Received error joining conference: ${JSON.stringify(error)}`);
+          this.logger.info(uri, 'Conference does not exist. Going to create a new conference and join it.');
+          await this.create_new_fs_conference(endpoint, meeting_pin.toString());
         }
       }
 
       dialog.on('destroy', async() => {
-        this.logger.info('Caller hung up. Checking conference size');
-        if (this.mediaserver.locals.meeting_pin.conference) {
-          try {
-            const confSize = await this.mediaserver.locals.meeting_pin.conference.getSize();
-            this.logger.info(`conference size is: ${confSize}`);
-            if (confSize === 0) { // could be 1 still for websocket endpoint
-              this.logger.info(uri, 'Last participant left the conference. Updating the API.');
-    
-              // destroy websocket endpoints
-              if (this.mediaserver.locals.meeting_pin.websocketEndpoints) {
-                this.logger.info(uri, `Destroying websocket Endpoints for ${meeting_pin}`);
-                this.mediaserver.locals.websocketEndpoints[0].destroy();
-                this.mediaserver.locals.websocketEndpoints[1].destroy();
-              }
-    
-              // destroy endpoint
-              const conference = this.mediaserver.locals.meeting_pin;
-              conference.destroy();
-              this.emit('conference::empty', meeting_pin);
-            }
-          } catch (error) {
-            this.logger.error(uri, "Could not find Conference object to check size and destroy if empty");
-          }
-        }
-
+        this.logger.info('Caller hung up.');
         endpoint.destroy();
       });
     } catch (error) {
