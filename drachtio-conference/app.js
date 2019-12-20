@@ -11,7 +11,7 @@ const ConferenceHandler = require('./lib/conference-handler');
 
 srf.connect(config.get('drachtio'));
 srf.on('connect', async(err, hp) => {
-  if (err) throw err;
+  if (err) { throw err; }
   console.log('#==========================================================');
   logger.info(`# Started drachtio listening on ${hp}`);
   console.log('#==========================================================');

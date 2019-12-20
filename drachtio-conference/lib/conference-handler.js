@@ -28,11 +28,11 @@ class ConferenceHandler extends Emitter {
       
           // 2. join endpoint to the conference
           await endpoint.join(conference);
-          this.logger.info('#ConferenceHandler: this.create_new_fs_conference() - connected endpoint to conference')
+          this.logger.info('#ConferenceHandler: this.create_new_fs_conference() - connected endpoint to conference');
           // 3. start recording
           const date = new Date();
           const confRecordingPath = `${__dirname}/recordings/${date.getFullYear()}${date.getMonth()}${date.getDate()}-${meeting_pin}.wav`;
-          this.logger.info(`#ConferenceHandler: this.create_new_fs_conference() - start recording to file: ${confRecordingPath}`)
+          this.logger.info(`#ConferenceHandler: this.create_new_fs_conference() - start recording to file: ${confRecordingPath}`);
           await conference.startRecording(confRecordingPath);
       
           // 4. connect mod_audio_fork to WebSocket server
@@ -43,9 +43,9 @@ class ConferenceHandler extends Emitter {
           await wsConfEndpoint.join(conference);
       
           // create endpoint that bridges with the conference endpoint
-          this.logger.info('#ConferenceHandler: this.create_new_fs_conference() - creating streaming endpoint for WS server')
+          this.logger.info('#ConferenceHandler: this.create_new_fs_conference() - creating streaming endpoint for WS server');
           const wsStreamEndpoint = await this.mediaserver.createEndpoint();
-          this.logger.info('#ConferenceHandler: this.create_new_fs_conference() - bridge streaming endpoint with conference endpoint')
+          this.logger.info('#ConferenceHandler: this.create_new_fs_conference() - bridge streaming endpoint with conference endpoint');
           await wsStreamEndpoint.bridge(wsConfEndpoint);
 
           wsStreamEndpoint.addCustomEventListener('mod_audio_fork::connect', (event) => { 
@@ -68,7 +68,7 @@ class ConferenceHandler extends Emitter {
           // fork conference audio between the two endpoints to the websocket server
           const wsServer = config.get('deepgram-websocket-server');
           const url = `${wsServer.host}:${wsServer.port}`;
-          const metaData = {meeting_id: meeting_pin, callid: req.get('Call-Id')};
+          const metaData = {meeting_id: meeting_pin, callid: this.req.get('Call-Id')};
           this.logger.info(`#ConferenceHandler: this.create_new_fs_conference() - forking audio to websocket server at ${url}`);
           await wsStreamEndpoint.forkAudioStart({
             wsUrl: url,
