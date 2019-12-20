@@ -108,10 +108,10 @@ class ConferenceHandler extends Emitter {
         }
       }
 
-      dialog.on('destroy', () => {
+      dialog.on('destroy', async() => {
         this.logger.info('Caller hung up. Checking conference size');
-        const confSize = this.mediaserver.locals.meeting_pin.getSize();
-        this.logger.info(`conference size it: ${confSize}`);
+        const confSize = await this.mediaserver.locals.meeting_pin.getSize();
+        this.logger.info(`conference size is: ${confSize}`);
         if (confSize === 0) {
           this.logger.info(uri, 'Last participant left the conference. Updating the API.');
           const conference = this.mediaserver.locals.meeting_pin;
