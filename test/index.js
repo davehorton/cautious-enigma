@@ -3,27 +3,23 @@ const test = require('tape');
 const child_process = require('child_process');
 const promisify = require('util').promisify;
 const exec = promisify(child_process.exec);
-
-const { host, user, password, database } = config.get('mysql');
+const pwd = process.env.TRAVIS ? '' : '-p$MYSQL_ROOT_PASSWORD';
+const { user, password, database } = config.get('mysql');
+const app = require('..');
 
 //=============================================================================
 // Create Database
 //=============================================================================
 test('Create Database', async(t) => {
   try {
-    await exec(
-      `mysql -h ${host} -u ${user} -p${password}\
-        -e "DROP DATABASE IF EXISTS ${database}"`
-    );
-    await exec(
-      `mysql -h ${host} -u ${user} -p${password}\
-        -e "CREATE DATABASE ${database}"`
-    );
-    await exec(
-      `mysql -h ${host} -u ${user} -p${password}\
-        ${database} < ${__dirname}/../db/schema.sql`
-    );
-    t.pass('Database created successfully');
+    await exec(`mysql -h localhost -u root ${pwd} -e "DROP DATABASE IF EXISTS ${database}"`);
+    await exec(`mysql -h localhost -u root ${pwd} -e "CREATE DATABASE ${database}"`);
+    t.pass(`created test database ${database}`);
+    await exec(`mysql -h localhost -u root ${pwd} -e "create user ${user}@localhost IDENTIFIED WITH mysql_native_password by '${password}'"`);
+    await exec(`mysql -h localhost -u root ${pwd} -e "grant all on ${database}.* to ${user}@localhost"`);
+    t.pass(`created user ${user}`);
+    await exec(`mysql -h localhost -u root ${pwd} -D ${database} < ${__dirname}/../db/schema.sql`);
+    t.pass('created schema');
     t.end();
   } catch (err) {
     t.fail(err);
@@ -58,20 +54,20 @@ require('./transcriptions/delete.js');
 // Utterances Tests
 //=============================================================================
 require('./utterances/get-all.js');
-
 //=============================================================================
 // Drop Database
 //=============================================================================
 test('Drop Database', async(t) => {
   try {
-    await exec(
-      `mysql -h ${host} -u ${user} -p${password}\
-        -e "DROP DATABASE ${database}"`
-    );
-    t.pass('Database dropped successfully');
+    await exec(`mysql -h localhost -u root ${pwd} -e "DROP DATABASE ${database}"`);
+    t.pass(`dropped test database ${database}`);
+    await exec(`mysql -h localhost -u root ${pwd} -e "REVOKE ALL PRIVILEGES, GRANT OPTION FROM ${database}@localhost"`);
+    await exec(`mysql -h localhost -u root ${pwd} -e "DROP USER ${database}@localhost"`);
+    t.pass(`removed user ${user}`);
     t.end();
   } catch (err) {
     t.fail(err);
     t.end();
   }
+  process.exit(0);
 });

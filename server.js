@@ -21,3 +21,5 @@ app.listen(config.get('port'), () => {
   logger.info(`# API started on port ${config.get('port')}`);
   console.log('#==========================================================');
 });
+
+module.exports = app;

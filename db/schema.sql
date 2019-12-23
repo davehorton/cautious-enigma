@@ -23,7 +23,7 @@ CREATE TABLE `utterances`
   (
     `id`                INT NOT NULL AUTO_INCREMENT,
     `seq`               INT NOT NULL,
-    `speech`            VARCHAR(65500) NOT NULL,
+    `speech`            TEXT NOT NULL,
     `start`             DECIMAL(12,6),
     `duration`          DECIMAL(12,6),
     `confidence`        DECIMAL(5,2),
