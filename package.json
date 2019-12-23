@@ -4,7 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "NODE_ENV=test node test/ | ./node_modules/.bin/tap-spec"
+    "test": "NODE_ENV=test node test/ | ./node_modules/.bin/tap-spec",
+    "postinstall": "cd client && npm install && npm run build && cd .."
   },
   "repository": {
     "type": "git",
