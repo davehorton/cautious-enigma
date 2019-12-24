@@ -8,5 +8,23 @@
     "user": "deepgram",
     "password": "deepgram",
     "database": "deepgram"
+  },
+  "drachtio": {
+    "host": "127.0.0.1",
+    "port": 9022,
+    "secret": "cymru"
+  },
+  "freeswitch": [{
+    "address": "127.0.0.1",
+    "port": 8021,
+    "secret": "ClueCon"
+  }],
+  "prompts": {
+    "welcome": "conference/conf-enter_conf_number.wav",
+    "error": "conference/conf-bad-pin.wav",
+    "goodbye": "conference/conf-goodbye.wav"
+  },
+  "deepgram-websocket-server": {
+    "url": "https://cab2b5852c84ae12.deepgram.com/v2/listen/stream?encoding=linear16&sample_rate=8000"
   }
 }

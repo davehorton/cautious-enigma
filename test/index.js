@@ -5,7 +5,7 @@ const promisify = require('util').promisify;
 const exec = promisify(child_process.exec);
 const pwd = process.env.TRAVIS ? '' : '-p$MYSQL_ROOT_PASSWORD';
 const { user, password, database } = config.get('mysql');
-const app = require('..');
+const app = require('../app');
 
 //=============================================================================
 // Create Database

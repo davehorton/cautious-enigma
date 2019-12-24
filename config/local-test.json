@@ -5,8 +5,8 @@
   },
   "mysql": {
     "host": "localhost",
-    "user": "deepgram",
-    "password": "deepgram",
-    "database": "deepgram"
+    "user": "deepgram_test",
+    "password": "deepgram_test",
+    "database": "deepgram_test"
   }
 }
