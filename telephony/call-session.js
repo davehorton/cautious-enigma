@@ -2,7 +2,7 @@ const Emitter = require('events');
 const config = require('config');
 const moment = require('moment');
 const execSync = require('child_process').execSync;
-const {apiJoinConference, apiCloseConference} = require('./apis');
+const {apiJoinConference, apiAddUtterance, apiCloseConference} = require('./apis');
 
 class CallSession extends Emitter {
   constructor(logger, req, res) {
@@ -99,17 +99,16 @@ class CallSession extends Emitter {
       await this.wsConfEndpoint.modify(this.wsStreamEndpoint.local.sdp);
       await this.wsStreamEndpoint.modify(this.wsConfEndpoint.local.sdp);
 
-      this.wsStreamEndpoint.addCustomEventListener('mod_audio_fork::connect', (event) => {
+      this.wsStreamEndpoint.addCustomEventListener('mod_audio_fork::connect', (evt) => {
         this.logger.info('successfully connected to websocket server');
       });
-      this.wsStreamEndpoint.addCustomEventListener('mod_audio_fork::connect_failed', (event) => {
+      this.wsStreamEndpoint.addCustomEventListener('mod_audio_fork::connect_failed', (evt) => {
         this.logger.error('received mod_audio_fork::connect_failed event');
-        this.emit('conference::audio_fork_failed', this.confPin);
       });
-      this.wsStreamEndpoint.addCustomEventListener('mod_audio_fork::json', async(event) => {
-        if (event.is_final) {
-          this.logger.info(event, 'received mod_audio_fork::json event');
-          this.emit('conference::utterance', { meeting_pin: this.confPin, utterance: event});
+      this.wsStreamEndpoint.addCustomEventListener('mod_audio_fork::json', async(evt) => {
+        if (evt.is_final) {
+          this.logger.info(evt, 'received mod_audio_fork::json event');
+          await apiAddUtterance(this.logger, this.meeting_pin, evt);
         }
       });
 
@@ -128,6 +127,11 @@ class CallSession extends Emitter {
     }
   }
 
+  get meeting_pin() {
+    const arr = /conf-(.*)/.exec(this.confPin);
+    return arr[1];
+  }
+
   _hangup(playError) {
     this.dlg.destroy();
     this.ep.destroy();
@@ -142,9 +146,8 @@ class CallSession extends Emitter {
   }
 
   async _closeConference() {
-    const arr = /conf-(.*)/.exec(this.confPin);
     this.logger.info('destroying conference after last participant left');
-    await apiCloseConference(this.logger, arr[1]);
+    await apiCloseConference(this.logger, this.meeting_pin);
     this.conference.destroy();
     if (this.wsConfEndpoint) this.wsConfEndpoint.destroy();
     if (this.wsStreamEndpoint) this.wsStreamEndpoint.destroy();
