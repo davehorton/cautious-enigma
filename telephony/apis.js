@@ -31,6 +31,9 @@ async function apiAddUtterance(logger, meeting_pin, evt) {
   try {
     assert.equal(typeof meeting_pin, 'string', 'argument \'meeting_pin\' must be string');
 
+    if (evt.channel.alternatives.length === 0 || evt.channel.alternatives[0].transcript.length === 0) {
+      return;
+    }
     const conference_api_uri = `http://127.0.0.1:${config.get('port')}/api/voip/add-utterance/${meeting_pin}`;
 
     const options = {
