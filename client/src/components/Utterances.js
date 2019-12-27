@@ -281,7 +281,7 @@ class Utterances extends Component {
                       }
                     </UtterTable.Td>
                     <UtterTable.Td>{u.speech}</UtterTable.Td>
-                    <UtterTable.Td>{formatTimeDuration(u.duration)}</UtterTable.Td>
+                    <UtterTable.Td>{formatTimeDuration(u.duration, true)}</UtterTable.Td>
                     <UtterTable.Td>{u.confidence}</UtterTable.Td>
                   </UtterTable.Tr>
                 </React.Fragment>

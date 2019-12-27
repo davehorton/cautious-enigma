@@ -73,19 +73,21 @@ const timeDifference = (date1, date2) => {
   return seconds;
 };
 
-const formatTimeDuration = (durationInSeconds) => {
+const formatTimeDuration = (durationInSeconds, showMilliseconds) => {
   if (!durationInSeconds) return false;
   const days = Math.floor(durationInSeconds / 86400);
   const secAfterDays = durationInSeconds % 86400;
   const hours = Math.floor(secAfterDays / 3600);
   const secAfterHours = secAfterDays % 3600;
   const min = Math.floor(secAfterHours / 60);
-  const sec = Math.round(secAfterHours % 60);
+  const sec = showMilliseconds
+    ? Math.round((secAfterHours % 60) * 1000000)/1000000
+    : Math.round(secAfterHours % 60);
   return `` +
     `${days ? `${days}d ` : ''}` +
     `${hours ? `${hours}h ` : ''}` +
     `${min ? `${min}m ` : ''}` +
-    `${sec ? `${sec}s ` : ''}`;
+    `${sec ? `${sec}s` : ''}`;
 };
 
 const getTimeOffset = (date, offset) => {
