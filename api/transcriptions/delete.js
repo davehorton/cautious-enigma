@@ -19,10 +19,10 @@ module.exports = async(req, res) => {
 
     // Delete recording files
     try {
-      await unlink(results[0].recording_path);
+      results[0].recording_path && await unlink(results[0].recording_path);
     } catch (err) {
       if (err.message.includes('ENOENT: no such file or directory')) {
-        logger.warn(`Was going to delete file "${file}", but it doesn't exist.`);
+        logger.warn(`Was going to delete file "${results[0].recording_path}", but it doesn't exist.`);
       } else {
         throw err;
       }
