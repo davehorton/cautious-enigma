@@ -147,7 +147,7 @@ class CallSession extends Emitter {
 
   async _closeConference() {
     this.logger.info('destroying conference after last participant left');
-    await apiCloseConference(this.logger, this.meeting_pin);
+    await apiCloseConference(this.logger, this.meeting_pin, this.confRecordingPath);
     this.conference.destroy();
     if (this.wsConfEndpoint) this.wsConfEndpoint.destroy();
     if (this.wsStreamEndpoint) this.wsStreamEndpoint.destroy();

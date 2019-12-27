@@ -409,6 +409,16 @@ paths:
       summary: End a transcription for a conference based off of meeting pin
       tags:
         - voip
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                recording-path:
+                  type: string
+            example:
+              recording-path: /path/to/file.mp3
       responses:
         200:
           description: Transcription ended successfully

@@ -56,7 +56,7 @@ async function apiAddUtterance(logger, meeting_pin, evt) {
   }
 }
 
-async function apiCloseConference(logger, meeting_pin) {
+async function apiCloseConference(logger, meeting_pin, recording_path) {
   try {
     assert.equal(typeof meeting_pin, 'string', 'argument \'meeting_pin\' must be string');
 
@@ -64,7 +64,8 @@ async function apiCloseConference(logger, meeting_pin) {
 
     const options = {
       method: 'PUT',
-      uri: conference_api_uri
+      uri: conference_api_uri,
+      body: { 'recording-path': recording_path },
     };
     const response = await request(options);
     logger.debug(response,
