@@ -73,12 +73,13 @@ UtterTable.Td = styled(Table.Td)`
     &:nth-child(3) {
       position: absolute;
       top: 0;
-      right: 4rem;
+      right: 5rem;
     }
     &:nth-child(4) {
       position: absolute;
       top: 0;
       right: 0;
+      width: 5rem;
     }
   }
 `;
