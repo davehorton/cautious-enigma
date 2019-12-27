@@ -25,6 +25,7 @@ UtterTable.Table = styled(Table.Table)`
   width: 100%;
   margin: 0;
   table-layout: auto;
+  border: none;
 `;
 UtterTable.DateLineTr = styled.tr``;
 UtterTable.TheadTr = styled.tr`
