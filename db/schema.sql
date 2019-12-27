@@ -13,6 +13,7 @@ CREATE TABLE `transcriptions`
     `id`                INT NOT NULL AUTO_INCREMENT,
     `time_start`        TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `time_end`          TIMESTAMP NULL DEFAULT NULL,
+    `recording_path`    VARCHAR(255),
     `conference_id`     INT NOT NULL,
     PRIMARY KEY (`id`),
     FOREIGN KEY (`conference_id`) REFERENCES conferences(`id`)

@@ -14,6 +14,10 @@ tags:
     description: >
       used by the voip application to create and modify
       transcriptions and utterances in real-time
+  - name: audio
+    description: >
+      used by the web application to request the audio
+      recording for a transcription
 
 #==============================================================================
 # Paths
@@ -453,6 +457,32 @@ paths:
           description: Speech required
         404:
           description: \"Conference doesn't exist\" or \"No active transcription\"
+        500:
+          description: Internal Server error
+  #==============================================================================
+  # audio
+  #==============================================================================
+  /audio/{transcriptionId}:
+    parameters:
+      - name: transcriptionId
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get an audio recording for one transcription
+      tags:
+        - audio
+      responses:
+        200:
+          description: Audio recording
+          content:
+            audio/mpeg:
+              schema:
+                type: string
+                format: binary
+        404:
+          description: \"Transcription doesn't exist\" OR \"No audio available for this transcription\"
         500:
           description: Internal Server error
 

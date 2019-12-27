@@ -29,4 +29,7 @@ router.post('/voip/join-conference/:pin', require('./voip/join-conference'));
 router.put ('/voip/end-transcription/:pin',   require('./voip/end-transcription'));
 router.post('/voip/add-utterance/:pin',       require('./voip/add-utterance'));
 
+// Audio
+router.get('/audio/:id', require('./audio/get-one'));
+
 module.exports = router;
