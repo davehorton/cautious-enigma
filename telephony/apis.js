@@ -66,6 +66,7 @@ async function apiCloseConference(logger, meeting_pin, recording_path) {
       method: 'PUT',
       uri: conference_api_uri,
       body: { 'recording-path': recording_path },
+      json: true
     };
     const response = await request(options);
     logger.debug(response,
