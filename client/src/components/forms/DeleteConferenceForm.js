@@ -50,7 +50,7 @@ class DeleteConferenceForm extends Component {
                 </tr>
               </tbody>
             </DescriptiveTable.Table>
-            <ErrorMessage>WARNING: This will delete all transcriptions (and recordings?) associated with this conference.</ErrorMessage>
+            <ErrorMessage>WARNING: This will permanently delete all transcriptions and recordings associated with this conference.</ErrorMessage>
             <ButtonContainer style={{marginTop: '0.7rem'}}>
               <Button gray onClick={this.handleCancel}>Cancel</Button>
               <Button danger>Delete</Button>
