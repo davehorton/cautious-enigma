@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import { datetime, timeOnly, timeWithSeconds, dateOnly, timeDifference, isSameDate, formatTimeDuration, getTimeOffset } from '../util/date-format';
+import { datetime, timeOnly, dateOnly, timeDifference, isSameDate, formatTimeDuration, getTimeOffset } from '../util/date-format';
 import Main from '../styles/Main';
 import H1 from '../styles/H1';
 import A from '../styles/A';
@@ -275,11 +275,7 @@ class Utterances extends Component {
                   }
                   <UtterTable.Tr>
                     <UtterTable.Td>
-                      {
-                        timeWithSeconds(getTimeOffset(
-                          this.state.transInfo.time_start, u.start
-                        )) || ''
-                      }
+                      {formatTimeDuration(u.start, true)}
                     </UtterTable.Td>
                     <UtterTable.Td>{u.speech}</UtterTable.Td>
                     <UtterTable.Td>{formatTimeDuration(u.duration, true)}</UtterTable.Td>
