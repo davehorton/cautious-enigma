@@ -19,6 +19,8 @@ const Button = styled.button`
   color: #fff;
   font-size: 1em;
   cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
   &:hover {
     background: ${props => props.danger
       ? '#942121'

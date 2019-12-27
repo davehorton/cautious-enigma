@@ -1,8 +1,10 @@
 import styled from 'styled-components';
 
 const Audio = styled.audio`
-  width: 100%;
-  margin: 1rem 0;
+  flex-grow: 1;
+  height: 2rem;
+  min-width: 1rem;
+  margin-right: 0.5rem;
 `;
 
 export default Audio;

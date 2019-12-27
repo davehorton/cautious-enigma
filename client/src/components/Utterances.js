@@ -4,6 +4,7 @@ import { datetime, timeOnly, timeWithSeconds, dateOnly, timeDifference, isSameDa
 import Main from '../styles/Main';
 import H1 from '../styles/H1';
 import A from '../styles/A';
+import Button from '../styles/Button';
 import Table from '../styles/Table';
 import Audio from '../styles/Audio';
 import DescriptiveTable from '../styles/DescriptiveTable';
@@ -107,6 +108,11 @@ UtterTable.DateLineDate = styled.span`
   background: #fff;
 `;
 
+const AudioWrapper = styled.div`
+  display: flex;
+  margin: 0 0.5rem 1rem;
+`;
+
 class Utterances extends Component {
   constructor() {
     super();
@@ -129,6 +135,13 @@ class Utterances extends Component {
 
     const utterances = await axios.get(`/api/trans/${transId}/utter`);
     this.setState({ utterances: utterances.data });
+
+    try {
+      await axios.get(`/api/audio/${this.props.match.params.transId}`);
+      this.setState({ audioExists: true });
+    } catch (err) {
+      this.setState({ audioExists: false });
+    }
   }
 
   shouldDisplayDate(u) {
@@ -203,7 +216,22 @@ class Utterances extends Component {
             </tbody>
           </DescriptiveTable.Table>
         </Header>
-        <Audio controls></Audio>
+        {
+          this.state.audioExists
+            ? <AudioWrapper>
+                <Audio
+                  controls
+                  src={`/api/audio/${this.props.match.params.transId}`}
+                ></Audio>
+                <Button
+                  as="a"
+                  href={`/api/audio/${this.props.match.params.transId}`}
+                >
+                  Download
+                </Button>
+              </AudioWrapper>
+            : <Header>No audio recording available for this transcription</Header>
+        }
         <UtterTable.Table>
           <thead>
             <UtterTable.TheadTr>
