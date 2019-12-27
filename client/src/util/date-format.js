@@ -74,6 +74,7 @@ const timeDifference = (date1, date2) => {
 };
 
 const formatTimeDuration = (durationInSeconds, showMilliseconds) => {
+  if (parseInt(durationInSeconds) === 0) return '0s';
   if (!durationInSeconds) return false;
   const days = Math.floor(durationInSeconds / 86400);
   const secAfterDays = durationInSeconds % 86400;
