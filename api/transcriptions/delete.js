@@ -1,18 +1,35 @@
 const mysql = require('../../db/mysql');
 const logger = require('../../utils/logger');
+const fs = require('fs');
+const util = require('util');
+const unlink = util.promisify(fs.unlink);
 
 module.exports = async(req, res) => {
   try {
-    const sqlCheckIfExists = `
-      SELECT id
+    const sql = `
+      SELECT id, recording_path
       FROM transcriptions
       WHERE id = ?
     `;
-    const [resultsCheckIfExists] = await mysql.query(sqlCheckIfExists, req.params.id);
-    if (!resultsCheckIfExists.length) {
+    const [results] = await mysql.query(sql, req.params.id);
+    if (!results.length) {
       res.status(404).send('Transcription doesn\'t exist');
       return;
     }
+
+    // Delete recording files
+    try {
+      await unlink(results[0].recording_path);
+    } catch (err) {
+      if (err.message.includes('ENOENT: no such file or directory')) {
+        logger.warn(`Was going to delete file "${file}", but it doesn't exist.`);
+      } else {
+        throw err;
+      }
+    }
+
+
+    // Delete from database
     const sqlDelete = `
       DELETE FROM transcriptions
       WHERE id = ?
