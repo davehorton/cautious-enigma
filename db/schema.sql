@@ -27,7 +27,7 @@ CREATE TABLE `utterances`
     `speech`            TEXT NOT NULL,
     `start`             DECIMAL(12,6),
     `duration`          DECIMAL(12,6),
-    `confidence`        DECIMAL(5,2),
+    `confidence`        DECIMAL(12,6),
     `transcription_id`  INT NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY (`seq`, `transcription_id`),
