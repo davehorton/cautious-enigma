@@ -92,6 +92,7 @@ paths:
         500:
           description: Internal Server error
 
+  #==============================================================================
   /conf/{conferenceId}:
     parameters:
       - name: conferenceId
@@ -210,6 +211,7 @@ paths:
         500:
           description: Internal Server error
 
+  #==============================================================================
   /trans/{transcriptionId}:
     parameters:
       - name: transcriptionId
@@ -313,7 +315,6 @@ paths:
         required: true
         schema:
           type: integer
-    #------------------------------------------------------------------------------
     post:
       summary: Start a transcription for a conference based off of meeting pin
       tags:
@@ -396,37 +397,7 @@ paths:
         500:
           description: Internal Server error
 
-  /voip/end-transcription/{meetingPin}:
-    parameters:
-      - name: meetingPin
-        in: path
-        required: true
-        schema:
-          type: integer
-
-    #------------------------------------------------------------------------------
-    put:
-      summary: End a transcription for a conference based off of meeting pin
-      tags:
-        - voip
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                recording-path:
-                  type: string
-            example:
-              recording-path: /path/to/file.mp3
-      responses:
-        200:
-          description: Transcription ended successfully
-        404:
-          description: Conference doesn't exist
-        500:
-          description: Internal Server error
-
+  #==============================================================================
   /voip/add-utterance/{meetingPin}:
     parameters:
       - name: meetingPin
@@ -434,7 +405,6 @@ paths:
         required: true
         schema:
           type: integer
-    #------------------------------------------------------------------------------
     post:
       summary: Add an utterance to a transcription based off of meeting pin
       tags:
@@ -472,6 +442,38 @@ paths:
           description: \"Conference doesn't exist\" or \"No active transcription\"
         500:
           description: Internal Server error
+
+  #==============================================================================
+  /voip/end-transcription/{meetingPin}:
+    parameters:
+      - name: meetingPin
+        in: path
+        required: true
+        schema:
+          type: integer
+
+    put:
+      summary: End a transcription for a conference based off of meeting pin
+      tags:
+        - voip
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                recording-path:
+                  type: string
+            example:
+              recording-path: /path/to/file.mp3
+      responses:
+        200:
+          description: Transcription ended successfully
+        404:
+          description: Conference doesn't exist
+        500:
+          description: Internal Server error
+
   #==============================================================================
   # audio
   #==============================================================================
