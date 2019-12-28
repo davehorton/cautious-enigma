@@ -73,22 +73,40 @@ const timeDifference = (date1, date2) => {
   return seconds;
 };
 
-const formatTimeDuration = (durationInSeconds, showMilliseconds) => {
-  if (parseInt(durationInSeconds) === 0) return '0s';
+const formatTimeDuration = (durationInSeconds, numberDecimals) => {
+  if (parseFloat(durationInSeconds) === 0) {
+    return `${(0).toFixed(numberDecimals)}s`;
+  }
   if (!durationInSeconds) return false;
-  const days = Math.floor(durationInSeconds / 86400);
-  const secAfterDays = durationInSeconds % 86400;
-  const hours = Math.floor(secAfterDays / 3600);
-  const secAfterHours = secAfterDays % 3600;
-  const min = Math.floor(secAfterHours / 60);
-  const sec = showMilliseconds
-    ? Math.round((secAfterHours % 60) * 1000000)/1000000
-    : Math.round(secAfterHours % 60);
+  let days = Math.floor(durationInSeconds / 86400);
+  let secAfterDays = durationInSeconds % 86400;
+  let hours = Math.floor(secAfterDays / 3600);
+  let secAfterHours = secAfterDays % 3600;
+  let min = Math.floor(secAfterHours / 60);
+  let sec = (secAfterHours % 60).toFixed(numberDecimals);
+  if (parseFloat(sec) === 60) {
+    min += 1;
+    sec = 0;
+  }
   return `` +
     `${days ? `${days}d ` : ''}` +
     `${hours ? `${hours}h ` : ''}` +
     `${min ? `${min}m ` : ''}` +
-    `${sec ? `${sec}s` : ''}`;
+    `${sec}s`;
+};
+
+const formatTimeDurationHMM = (durationInSeconds) => {
+  if (parseFloat(durationInSeconds) === 0) return '0:00';
+  if (!durationInSeconds) return false;
+  let min = Math.floor(durationInSeconds / 60);
+  let sec = Math.round(durationInSeconds % 60)
+    .toString()
+    .padStart(2,0);
+  if (sec === '60') {
+    min += 1;
+    sec = '00';
+  }
+  return `${min}:${sec}`;
 };
 
 const getTimeOffset = (date, offset) => {
@@ -106,5 +124,6 @@ export {
   isSameDate,
   timeDifference,
   formatTimeDuration,
+  formatTimeDurationHMM,
   getTimeOffset,
 };

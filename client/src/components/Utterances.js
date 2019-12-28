@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import { datetime, timeOnly, dateOnly, timeDifference, isSameDate, formatTimeDuration, getTimeOffset } from '../util/date-format';
+import { datetime, timeOnly, dateOnly, timeDifference, isSameDate, formatTimeDuration, formatTimeDurationHMM, getTimeOffset } from '../util/date-format';
 import Main from '../styles/Main';
 import H1 from '../styles/H1';
 import A from '../styles/A';
@@ -276,11 +276,15 @@ class Utterances extends Component {
                   }
                   <UtterTable.Tr>
                     <UtterTable.Td>
-                      {formatTimeDuration(u.start, true)}
+                      {formatTimeDurationHMM(u.start)}
                     </UtterTable.Td>
                     <UtterTable.Td>{u.speech}</UtterTable.Td>
-                    <UtterTable.Td>{formatTimeDuration(u.duration, true)}</UtterTable.Td>
-                    <UtterTable.Td>{u.confidence}</UtterTable.Td>
+                    <UtterTable.Td>{formatTimeDuration(u.duration, 1)}</UtterTable.Td>
+                    <UtterTable.Td>{
+                      u.confidence
+                        ? parseFloat(u.confidence).toFixed(3)
+                        : null
+                      }</UtterTable.Td>
                   </UtterTable.Tr>
                 </React.Fragment>
               ))
