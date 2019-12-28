@@ -48,9 +48,13 @@ UtterTable.Tr = styled.tr`
 `;
 UtterTable.Th = styled(Table.Th)`
   color: #fff;
+  padding: 0 0.5rem;
   &:first-child,
   &:last-child {
     width: unset;
+  }
+  &:nth-child(3) {
+    text-align: right;
   }
 `;
 UtterTable.Td = styled(Table.Td)`
