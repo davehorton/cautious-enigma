@@ -461,7 +461,7 @@ paths:
               speech: Hello
               start: 2.412423
               duration: 1.021121
-              confidence: 50.22
+              confidence: 0.592381
               member-id: 4
       responses:
         200:
