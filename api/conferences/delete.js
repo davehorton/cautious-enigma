@@ -1,5 +1,8 @@
 const mysql = require('../../db/mysql');
 const logger = require('../../utils/logger');
+const fs = require('fs');
+const util = require('util');
+const unlink = util.promisify(fs.unlink);
 
 module.exports = async(req, res) => {
   try {
@@ -13,6 +16,31 @@ module.exports = async(req, res) => {
       res.status(404).send('Conference doesn\'t exist');
       return;
     }
+
+    // Find all transcriptions with this conference ID that have a recording
+    const sqlFindTranscriptions = `
+      SELECT recording_path
+      FROM transcriptions
+      WHERE conference_id = ?
+      AND recording_path IS NOT NULL
+    `;
+    const [resultsFindTranscriptions] = await mysql.query(sqlFindTranscriptions, req.params.id);
+    const files = resultsFindTranscriptions.map((result) => result.recording_path);
+
+    // Delete all files associated with transcriptions
+    files.forEach(async(file) => {
+      try {
+        await unlink(file);
+      } catch (err) {
+        if (err.message.includes('ENOENT: no such file or directory')) {
+          logger.warn(`Was going to delete file "${file}", but it doesn't exist.`);
+        } else {
+          throw err;
+        }
+      }
+    });
+
+    // Delete from database
     const sqlDelete = `
       DELETE FROM conferences
       WHERE id = ?

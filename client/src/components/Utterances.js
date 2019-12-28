@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import { datetime, timeOnly, timeWithSeconds, dateOnly, timeDifference, isSameDate, formatTimeDuration, getTimeOffset } from '../util/date-format';
+import { datetime, timeOnly, dateOnly, timeDifference, isSameDate, formatTimeDuration, formatTimeDurationHMM, getTimeOffset } from '../util/date-format';
 import Main from '../styles/Main';
 import H1 from '../styles/H1';
 import A from '../styles/A';
+import Button from '../styles/Button';
 import Table from '../styles/Table';
 import Audio from '../styles/Audio';
 import DescriptiveTable from '../styles/DescriptiveTable';
@@ -24,6 +25,7 @@ UtterTable.Table = styled(Table.Table)`
   width: 100%;
   margin: 0;
   table-layout: auto;
+  border: none;
 `;
 UtterTable.DateLineTr = styled.tr``;
 UtterTable.TheadTr = styled.tr`
@@ -46,9 +48,13 @@ UtterTable.Tr = styled.tr`
 `;
 UtterTable.Th = styled(Table.Th)`
   color: #fff;
+  padding: 0 0.5rem;
   &:first-child,
   &:last-child {
     width: unset;
+  }
+  &:nth-child(3) {
+    text-align: right;
   }
 `;
 UtterTable.Td = styled(Table.Td)`
@@ -71,12 +77,13 @@ UtterTable.Td = styled(Table.Td)`
     &:nth-child(3) {
       position: absolute;
       top: 0;
-      right: 4rem;
+      right: 5rem;
     }
     &:nth-child(4) {
       position: absolute;
       top: 0;
       right: 0;
+      width: 5rem;
     }
   }
 `;
@@ -107,6 +114,11 @@ UtterTable.DateLineDate = styled.span`
   background: #fff;
 `;
 
+const AudioWrapper = styled.div`
+  display: flex;
+  margin: 0 0.5rem 1rem;
+`;
+
 class Utterances extends Component {
   constructor() {
     super();
@@ -129,6 +141,13 @@ class Utterances extends Component {
 
     const utterances = await axios.get(`/api/trans/${transId}/utter`);
     this.setState({ utterances: utterances.data });
+
+    try {
+      await axios.get(`/api/audio/${this.props.match.params.transId}`);
+      this.setState({ audioExists: true });
+    } catch (err) {
+      this.setState({ audioExists: false });
+    }
   }
 
   shouldDisplayDate(u) {
@@ -203,7 +222,22 @@ class Utterances extends Component {
             </tbody>
           </DescriptiveTable.Table>
         </Header>
-        <Audio controls></Audio>
+        {
+          this.state.audioExists
+            ? <AudioWrapper>
+                <Audio
+                  controls
+                  src={`/api/audio/${this.props.match.params.transId}`}
+                ></Audio>
+                <Button
+                  as="a"
+                  href={`/api/audio/${this.props.match.params.transId}`}
+                >
+                  Download
+                </Button>
+              </AudioWrapper>
+            : <Header>No audio recording available for this transcription</Header>
+        }
         <UtterTable.Table>
           <thead>
             <UtterTable.TheadTr>
@@ -246,15 +280,15 @@ class Utterances extends Component {
                   }
                   <UtterTable.Tr>
                     <UtterTable.Td>
-                      {
-                        timeWithSeconds(getTimeOffset(
-                          this.state.transInfo.time_start, u.start
-                        )) || ''
-                      }
+                      {formatTimeDurationHMM(u.start)}
                     </UtterTable.Td>
                     <UtterTable.Td>{u.speech}</UtterTable.Td>
-                    <UtterTable.Td>{formatTimeDuration(u.duration)}</UtterTable.Td>
-                    <UtterTable.Td>{u.confidence}</UtterTable.Td>
+                    <UtterTable.Td>{formatTimeDuration(u.duration, 1)}</UtterTable.Td>
+                    <UtterTable.Td>{
+                      u.confidence
+                        ? parseFloat(u.confidence).toFixed(3)
+                        : null
+                      }</UtterTable.Td>
                   </UtterTable.Tr>
                 </React.Fragment>
               ))

@@ -183,7 +183,7 @@ class Conferences extends Component {
                   </Table.Td>
                   <Table.Td grow>
                     <Table.A href={`/conf/${c.id}`}>
-                      {c.description}
+                      {c.description || <span>&nbsp;</span>}
                       {c.freeswitch_ip &&
                         <Table.Span blue title="There is currently an active call on this conference">
                           (Active)

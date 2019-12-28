@@ -13,6 +13,7 @@ CREATE TABLE `transcriptions`
     `id`                INT NOT NULL AUTO_INCREMENT,
     `time_start`        TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `time_end`          TIMESTAMP NULL DEFAULT NULL,
+    `recording_path`    VARCHAR(255),
     `conference_id`     INT NOT NULL,
     PRIMARY KEY (`id`),
     FOREIGN KEY (`conference_id`) REFERENCES conferences(`id`)
@@ -26,7 +27,8 @@ CREATE TABLE `utterances`
     `speech`            TEXT NOT NULL,
     `start`             DECIMAL(12,6),
     `duration`          DECIMAL(12,6),
-    `confidence`        DECIMAL(5,2),
+    `confidence`        DECIMAL(12,6),
+    `member_id`         INT,
     `transcription_id`  INT NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY (`seq`, `transcription_id`),

@@ -27,8 +27,12 @@ class DeleteTranscriptionForm extends Component {
   }
   async handleSubmit(e) {
     e.preventDefault();
-    await axios.delete(`/api/trans/${this.props.transcription.id}`);
-    this.props.complete();
+    try {
+      await axios.delete(`/api/trans/${this.props.transcription.id}`);
+      this.props.complete();
+    } catch (err) {
+      this.setState({errorMessage: err.message});
+    }
   }
   handleCancel() {
     this.props.cancel();
@@ -55,7 +59,12 @@ class DeleteTranscriptionForm extends Component {
                 </tr>
               </tbody>
             </DescriptiveTable.Table>
-            <ErrorMessage>WARNING: This will delete the transcription (and recordings?).</ErrorMessage>
+            <ErrorMessage>
+              {
+                this.state.errorMessage ||
+                'WARNING: This will permanently delete the transcription and recording.'
+              }
+            </ErrorMessage>
             <ButtonContainer style={{marginTop: '0.7rem'}}>
               <Button gray onClick={this.handleCancel}>Cancel</Button>
               <Button danger>Delete</Button>

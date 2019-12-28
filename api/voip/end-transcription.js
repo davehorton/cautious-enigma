@@ -16,14 +16,21 @@ module.exports = async(req, res) => {
     }
     const conferenceId = conferenceIdResults[0].id;
 
-    // End active transcription(s)
+    // End active transcription and add recording file path
     const sqlEndTranscription = `
       UPDATE transcriptions
-      SET time_end = ?
+      SET
+        time_end = ?,
+        recording_path = ?
       WHERE conference_id = ?
       AND time_end IS NULL
     `;
-    await mysql.query(sqlEndTranscription, [new Date(), conferenceId]);
+    const sqlValuesEndTranscription = [
+      new Date(),
+      req.body['recording-path'],
+      conferenceId,
+    ];
+    await mysql.query(sqlEndTranscription, sqlValuesEndTranscription);
 
     // Remove FreeSWITCH IP from current conferences
     const sqlRemoveFreeswitchIp = `

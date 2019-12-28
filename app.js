@@ -43,7 +43,7 @@ if (process.env.NODE_ENV !== 'test') {
 //=============================================================================
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(cors({ origin: 'http://localhost:3001' }));
 app.use(express.static(path.join(__dirname, 'client', 'build')));
 
 //=============================================================================
@@ -54,7 +54,7 @@ app.use('/api', require('./api'));
 // Front end React client
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'));
-  // res.redirect(`http://localhost:3000${req.originalUrl}`
+  // res.redirect(`http://localhost:3001${req.originalUrl}`);
 });
 
 //=============================================================================

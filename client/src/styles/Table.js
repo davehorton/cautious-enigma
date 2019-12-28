@@ -34,9 +34,6 @@ const Tr = styled.tr`
   }
   display: flex;
   align-items: center;
-  @media (max-width: 700px) {
-    justify-content: space-between;
-  }
 `;
 
 const Th = styled.th`
@@ -50,6 +47,7 @@ const Th = styled.th`
   `}
   &:first-child {
     width: 7rem;
+    box-sizing: border-box;
     flex-shrink: 0;
   }
   &:last-child {
