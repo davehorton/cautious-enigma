@@ -16,7 +16,8 @@ test('VoIP > Add Utterance', async(t) => {
       body: {
         start: 3.829193,
         duration: 2.338891,
-        confidence: 0.987654
+        confidence: 0.987654,
+        'member-id': 4
       },
     });
     t.equal(response.statusCode, 400, 'Returns 400 if speech is not provided');
@@ -28,7 +29,8 @@ test('VoIP > Add Utterance', async(t) => {
         speech: 'Hello',
         start: 3.829193,
         duration: 2.338891,
-        confidence: 0.987654
+        confidence: 0.987654,
+        'member-id': 4
       },
     });
     t.equal(response.statusCode, 404, 'Returns 404 if conference doesn\'t exist');
@@ -48,7 +50,8 @@ test('VoIP > Add Utterance', async(t) => {
         speech: 'Hello',
         start: 3.829193,
         duration: 2.338891,
-        confidence: 0.987654
+        confidence: 0.987654,
+        'member-id': 4
       },
     });
     t.equal(response.statusCode, 404, 'Returns 404 if there is no active transcription on the given conference');
@@ -60,7 +63,8 @@ test('VoIP > Add Utterance', async(t) => {
         speech: 'Hello',
         start: 3.829193,
         duration: 2.338891,
-        confidence: 0.987654
+        confidence: 0.987654,
+        'member-id': 4
       },
     });
     t.equal(response.statusCode, 200, 'Returns 200 if utterance is added successfully');
@@ -72,7 +76,8 @@ test('VoIP > Add Utterance', async(t) => {
         speech: 'Hi back',
         start: 4.282929,
         duration: 3.222222,
-        confidence: 0.555444
+        confidence: 0.555444,
+        'member-id': 5
       },
     });
     t.equal(response.statusCode, 200, 'Returns 200 when a second utterance is added');
@@ -89,14 +94,16 @@ test('VoIP > Add Utterance', async(t) => {
           speech: 'Hello',
           start: '3.829193',
           duration: '2.338891',
-          confidence: '0.987654'
+          confidence: '0.987654',
+          member_id: 4
         },
         {
           seq: 2,
           speech: 'Hi back',
           start: '4.282929',
           duration: '3.222222',
-          confidence: '0.555444'
+          confidence: '0.555444',
+          member_id: 5
         }
       ],
       'Confirmed that utterances retrieved from API match what was provided'

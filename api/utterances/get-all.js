@@ -19,7 +19,8 @@ module.exports = async(req, res) => {
         speech,
         start,
         duration,
-        confidence
+        confidence,
+        member_id
       FROM utterances
       WHERE transcription_id = ?
       ORDER BY seq ASC

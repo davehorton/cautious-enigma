@@ -51,9 +51,9 @@ module.exports = async(req, res) => {
 
     const sqlAddUtterance = `
       INSERT INTO utterances
-        (seq, speech, start, duration, confidence, transcription_id)
+        (seq, speech, start, duration, confidence, member_id, transcription_id)
       VALUES
-        (?, ?, ?, ?, ?, ?)
+        (?, ?, ?, ?, ?, ?, ?)
     `;
     const sqlValuesAddUtterance = [
       seq,
@@ -61,6 +61,7 @@ module.exports = async(req, res) => {
       req.body.start,
       req.body.duration,
       req.body.confidence,
+      req.body['member-id'],
       transcriptionId
     ];
     await mysql.query(sqlAddUtterance, sqlValuesAddUtterance);

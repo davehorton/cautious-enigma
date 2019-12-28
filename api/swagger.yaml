@@ -453,6 +453,8 @@ paths:
                   type: number
                 confidence:
                   type: number
+                member-id:
+                  type: number
               required:
                 - speech
             example:
@@ -460,6 +462,7 @@ paths:
               start: 2.412423
               duration: 1.021121
               confidence: 50.22
+              member-id: 4
       responses:
         200:
           description: Utterance added successfully
