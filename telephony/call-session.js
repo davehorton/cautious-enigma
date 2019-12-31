@@ -13,6 +13,11 @@ class CallSession extends Emitter {
     this.ms = req.locals.ms;
   }
 
+  get meeting_pin() {
+    const arr = /conf-(.*)/.exec(this.confPin);
+    return arr[1];
+  }
+
   async exec() {
     try {
       await this._connectToMs();
@@ -21,8 +26,11 @@ class CallSession extends Emitter {
         await this._createConference();
       }
       else {
-        await this.ep.join(this.confPin);
+        const {memberId} = await this.ep.join(this.confPin);
+        this.memberId = memberId;
+        this.logger.info(`joined existing conference as member id ${memberId}`);
       }
+      await this._forkAudio();
     } catch (err) {
       this.logger.error(err);
     }
@@ -74,7 +82,9 @@ class CallSession extends Emitter {
       this.conference.on('delMember', async(evt) => {
         if (this._isConferenceEmpty(evt)) this._closeConference();
       });
-      await this.ep.join(this.conference);
+      const {memberId} = await this.ep.join(this.conference);
+      this.memberId = memberId;
+      this.logger.info(`joined new conference as member id ${memberId}`);
     }
     catch (err) {
       this.logger.error(err, 'Error creating conference');
@@ -91,35 +101,8 @@ class CallSession extends Emitter {
       this.logger.info(`start recording to file: ${this.confRecordingPath}`);
       await this.conference.startRecording(this.confRecordingPath);
 
-      // for streaming audio to deepgram, create another pair of endpoints -
-      // one in in the conference providing a conference mix to the other which streams to dg
-      this.wsConfEndpoint = await this.ms.createEndpoint();
-      await this.wsConfEndpoint.join(this.confPin, {flags: {ghost: true, mute: true}});
-      this.wsStreamEndpoint = await this.ms.createEndpoint();
-      await this.wsConfEndpoint.modify(this.wsStreamEndpoint.local.sdp);
-      await this.wsStreamEndpoint.modify(this.wsConfEndpoint.local.sdp);
-
-      this.wsStreamEndpoint.addCustomEventListener('mod_audio_fork::connect', (evt) => {
-        this.logger.info('successfully connected to websocket server');
-      });
-      this.wsStreamEndpoint.addCustomEventListener('mod_audio_fork::connect_failed', (evt) => {
-        this.logger.error('received mod_audio_fork::connect_failed event');
-      });
-      this.wsStreamEndpoint.addCustomEventListener('mod_audio_fork::json', async(evt) => {
-        if (evt.is_final) {
-          this.logger.info(evt, 'received mod_audio_fork::json event');
-          await apiAddUtterance(this.logger, this.meeting_pin, evt);
-        }
-      });
-
-      // fork conference audio between the two endpoints to the websocket server
-      const url = config.get('deepgram-websocket-server.url');
-      this.logger.info(`forking audio to websocket server at ${url}`);
-      await this.wsStreamEndpoint.forkAudioStart({
-        wsUrl: url,
-        mixType: 'mono',
-        sampling: '8000'
-      });
+      // commented out since we are transcribing each leg separately
+      //await this._transcribeConferenceMix();
     } catch (err) {
       this.logger.error(err, 'Error with streaming, continuing conference');
       if (this.wsConfEndpoint) this.wsConfEndpoint.destroy();
@@ -127,9 +110,64 @@ class CallSession extends Emitter {
     }
   }
 
-  get meeting_pin() {
-    const arr = /conf-(.*)/.exec(this.confPin);
-    return arr[1];
+  async _forkAudio() {
+    try {
+      const url = config.get('deepgram-websocket-server.url');
+      this.logger.info(`forking audio to websocket server at ${url}`);
+      this.ep.addCustomEventListener('mod_audio_fork::connect', (evt) => {
+        this.logger.info('successfully connected to websocket server');
+      });
+      this.ep.addCustomEventListener('mod_audio_fork::connect_failed', (evt) => {
+        this.logger.error('received mod_audio_fork::connect_failed event');
+      });
+      this.ep.addCustomEventListener('mod_audio_fork::json', async(evt) => {
+        if (evt.is_final) {
+          this.logger.info(evt, `member id ${this.memberId} received mod_audio_fork::json event`);
+          await apiAddUtterance(this.logger, this.meeting_pin, Object.assign(evt, {'member-id': this.memberId}));
+        }
+      });
+      await this.ep.forkAudioStart({
+        wsUrl: url,
+        mixType: 'mono',
+        sampling: '8000'
+      });
+    } catch (err) {
+      this.logger.error(err, 'Error forking audio');
+    }
+  }
+
+  /* we are not using this, since we are transcribing each leg separately
+     but if desired to send one mixed conference stream for transcribing
+     here is what would be done
+  */
+  async _transcribeConferenceMix() {
+    this.wsConfEndpoint = await this.ms.createEndpoint();
+    await this.wsConfEndpoint.join(this.confPin, {flags: {ghost: true, mute: true}});
+    this.wsStreamEndpoint = await this.ms.createEndpoint();
+    await this.wsConfEndpoint.modify(this.wsStreamEndpoint.local.sdp);
+    await this.wsStreamEndpoint.modify(this.wsConfEndpoint.local.sdp);
+
+    this.wsStreamEndpoint.addCustomEventListener('mod_audio_fork::connect', (evt) => {
+      this.logger.info('successfully connected to websocket server');
+    });
+    this.wsStreamEndpoint.addCustomEventListener('mod_audio_fork::connect_failed', (evt) => {
+      this.logger.error('received mod_audio_fork::connect_failed event');
+    });
+    this.wsStreamEndpoint.addCustomEventListener('mod_audio_fork::json', async(evt) => {
+      if (evt.is_final) {
+        this.logger.info(evt, 'received mod_audio_fork::json event');
+        await apiAddUtterance(this.logger, this.meeting_pin, evt);
+      }
+    });
+
+    // fork conference audio between the two endpoints to the websocket server
+    const url = config.get('deepgram-websocket-server.url');
+    this.logger.info(`forking audio to websocket server at ${url}`);
+    await this.wsStreamEndpoint.forkAudioStart({
+      wsUrl: url,
+      mixType: 'mono',
+      sampling: '8000'
+    });
   }
 
   _hangup(playError) {
