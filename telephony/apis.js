@@ -43,7 +43,8 @@ async function apiAddUtterance(logger, meeting_pin, evt) {
         start: evt.start,
         duration: evt.duration,
         confidence: evt.channel.alternatives[0].confidence,
-        speech: evt.channel.alternatives[0].transcript
+        speech: evt.channel.alternatives[0].transcript,
+        'member-id': evt['member-id']
       },
       json: true
     };

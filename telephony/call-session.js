@@ -9,7 +9,7 @@ class CallSession extends Emitter {
     super();
     this.req = req;
     this.res = res;
-    this.logger = logger;
+    this.logger = logger.child({'Call-ID': req.get('Call-ID'), caller: req.callingNumber});
     this.ms = req.locals.ms;
   }
 
@@ -32,16 +32,18 @@ class CallSession extends Emitter {
       }
       await this._forkAudio();
     } catch (err) {
-      this.logger.error(err);
+      if (err.message !== 'hangup') this.logger.error(err);
     }
   }
 
   async _connectToMs() {
     try {
       const {endpoint, dialog} = await this.ms.connectCaller(this.req, this.res);
+      this.logger.info('successfully connected caller to ivr');
       this.ep = endpoint;
       this.dlg = dialog;
       this.dlg.on('destroy', this._onHangup.bind(this));
+      await this.ep.play('silence_stream://1000');
     } catch (err) {
       this.logger.error(err, 'Error connecting to media server');
       this.res.send(480);
@@ -61,6 +63,7 @@ class CallSession extends Emitter {
         this.logger.debug(`meeting_pin ${this.confPin}, freeswitch_ip: ${freeswitch_ip}`);
         return this.confMsAddress === null ? true : false;
       } catch (err) {
+        if (err.message === 'hangup') throw err;
         if (err.statusCode !== 404) {
           this.logger.error(err, 'Error collecting/validating pin');
           this._hangup();
@@ -176,6 +179,7 @@ class CallSession extends Emitter {
   }
 
   _onHangup() {
+    this.logger.info('caller hung up');
     this.ep.destroy();
   }
 
