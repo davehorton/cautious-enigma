@@ -32,7 +32,7 @@ UtterTable.TheadTr = styled.tr`
   background: #333;
   @media (max-width: 700px) {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
   }
 `;
 UtterTable.Tr = styled.tr`
@@ -53,17 +53,23 @@ UtterTable.Th = styled(Table.Th)`
   &:last-child {
     width: unset;
   }
-  &:nth-child(3) {
+  &:nth-child(4) {
     text-align: right;
+  }
+  @media (max-width: 700px) {
+    padding: 0;
+    font-size: 0.9rem;
   }
 `;
 UtterTable.Td = styled(Table.Td)`
   padding: 0.5rem;
-  &:first-child {
+  &:first-child,
+  &:nth-child(2) {
+    width: 4rem;
     color: #777;
   }
-  &:nth-child(3),
-  &:nth-child(4) {
+  &:nth-child(4),
+  &:nth-child(5) {
     text-align: right
     color: #777;
   }
@@ -72,14 +78,19 @@ UtterTable.Td = styled(Table.Td)`
       padding-bottom: 0;
     }
     &:nth-child(2) {
-      padding-bottom: 1rem;
+      position: absolute;
+      top: 0;
+      left: 4rem;
     }
     &:nth-child(3) {
+      padding-bottom: 1rem;
+    }
+    &:nth-child(4) {
       position: absolute;
       top: 0;
       right: 5rem;
     }
-    &:nth-child(4) {
+    &:nth-child(5) {
       position: absolute;
       top: 0;
       right: 0;
@@ -126,8 +137,10 @@ class Utterances extends Component {
       confInfo: {},
       transInfo: {},
       utterances: [],
+      minMemberId: 0,
     };
     this.shouldDisplayDate = this.shouldDisplayDate.bind(this);
+    this.memberIdAdjustment = this.memberIdAdjustment.bind(this);
   }
   async componentDidMount() {
     const confId = this.props.match.params.confId;
@@ -141,6 +154,14 @@ class Utterances extends Component {
 
     const utterances = await axios.get(`/api/trans/${transId}/utter`);
     this.setState({ utterances: utterances.data });
+
+    const minMemberId = utterances.data.reduce((acc, cur) => {
+      if (acc !== 0 && !acc) return cur.member_id;
+      if (cur.member_id !== 0 && !cur.member_id) return acc;
+      if (cur.member_id < acc) return cur.member_id;
+      return acc;
+    }, '');
+    this.setState({ minMemberId });
 
     try {
       await axios.get(`/api/audio/${this.props.match.params.transId}`);
@@ -168,6 +189,10 @@ class Utterances extends Component {
     return isSameDate(dateOfPreviousItem,dateOfCurrentItem)
       ? false
       : true
+  }
+
+  memberIdAdjustment(id) {
+    return id - this.state.minMemberId + 1;
   }
 
   render() {
@@ -242,6 +267,7 @@ class Utterances extends Component {
           <thead>
             <UtterTable.TheadTr>
               <UtterTable.Th>Time</UtterTable.Th>
+              <UtterTable.Th>Member</UtterTable.Th>
               <UtterTable.Th>Speech</UtterTable.Th>
               <UtterTable.Th>Duration</UtterTable.Th>
               <UtterTable.Th>Confidence</UtterTable.Th>
@@ -249,7 +275,7 @@ class Utterances extends Component {
           </thead>
           <tbody>
             <UtterTable.DateLineTr>
-              <UtterTable.DateLineTd colSpan="4">
+              <UtterTable.DateLineTd colSpan="5">
                 <UtterTable.DateLineDate>
                   Started {dateOnly(this.state.transInfo.time_start)} at {timeOnly(this.state.transInfo.time_start)}
                 </UtterTable.DateLineDate>
@@ -259,7 +285,7 @@ class Utterances extends Component {
               this.state.utterances.length
                 ? null
                 : <tr>
-                    <UtterTable.NoResultsTd colSpan="4" noResults>
+                    <UtterTable.NoResultsTd colSpan="5" noResults>
                       There were no utterances during this transcription
                     </UtterTable.NoResultsTd>
                   </tr>
@@ -270,7 +296,7 @@ class Utterances extends Component {
                   {
                     this.shouldDisplayDate(u)
                       ? <UtterTable.DateLineTr>
-                          <UtterTable.DateLineTd colSpan="4">
+                          <UtterTable.DateLineTd colSpan="5">
                             <UtterTable.DateLineDate>
                               {dateOnly(getTimeOffset(this.state.transInfo.time_start, u.start))}
                             </UtterTable.DateLineDate>
@@ -282,6 +308,7 @@ class Utterances extends Component {
                     <UtterTable.Td>
                       {formatTimeDurationMMMSS(timeDifference(this.state.transInfo.time_start,u.start_timestamp))}
                     </UtterTable.Td>
+                    <UtterTable.Td>{this.memberIdAdjustment(u.member_id)}</UtterTable.Td>
                     <UtterTable.Td>{u.speech}</UtterTable.Td>
                     <UtterTable.Td>{formatTimeDuration(u.duration, 1)}</UtterTable.Td>
                     <UtterTable.Td>{
@@ -294,7 +321,7 @@ class Utterances extends Component {
               ))
             }
             <UtterTable.DateLineTr>
-              <UtterTable.DateLineTd colSpan="4">
+              <UtterTable.DateLineTd colSpan="5">
                 <UtterTable.DateLineDate>
                   {
                     this.state.transInfo.time_end
