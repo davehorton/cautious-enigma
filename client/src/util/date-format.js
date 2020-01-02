@@ -95,7 +95,7 @@ const formatTimeDuration = (durationInSeconds, numberDecimals) => {
     `${sec}s`;
 };
 
-const formatTimeDurationHMM = (durationInSeconds) => {
+const formatTimeDurationMMMSS = (durationInSeconds) => {
   if (parseFloat(durationInSeconds) === 0) return '0:00';
   if (!durationInSeconds) return false;
   let min = Math.floor(durationInSeconds / 60);
@@ -124,6 +124,6 @@ export {
   isSameDate,
   timeDifference,
   formatTimeDuration,
-  formatTimeDurationHMM,
+  formatTimeDurationMMMSS,
   getTimeOffset,
 };
