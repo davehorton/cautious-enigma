@@ -86,6 +86,9 @@ test('VoIP > Add Utterance', async(t) => {
       method: 'GET',
       uri: '/trans/1/utter',
     });
+    response.body.forEach(utter => {
+      delete utter.start_timestamp;
+    });
     t.deepEqual(
       response.body,
       [

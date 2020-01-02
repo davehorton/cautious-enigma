@@ -280,7 +280,7 @@ class Utterances extends Component {
                   }
                   <UtterTable.Tr>
                     <UtterTable.Td>
-                      {formatTimeDurationMMMSS(u.start)}
+                      {formatTimeDurationMMMSS(timeDifference(this.state.transInfo.time_start,u.start_timestamp))}
                     </UtterTable.Td>
                     <UtterTable.Td>{u.speech}</UtterTable.Td>
                     <UtterTable.Td>{formatTimeDuration(u.duration, 1)}</UtterTable.Td>

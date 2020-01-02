@@ -18,6 +18,7 @@ module.exports = async(req, res) => {
         seq,
         speech,
         start,
+        start_timestamp,
         duration,
         confidence,
         member_id

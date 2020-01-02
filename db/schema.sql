@@ -26,6 +26,7 @@ CREATE TABLE `utterances`
     `seq`               INT NOT NULL,
     `speech`            TEXT NOT NULL,
     `start`             DECIMAL(12,6),
+    `start_timestamp`   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `duration`          DECIMAL(12,6),
     `confidence`        DECIMAL(12,6),
     `member_id`         INT,
