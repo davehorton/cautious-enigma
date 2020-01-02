@@ -35,12 +35,6 @@ const timeOnly = (date) => {
   return `${d.hour}:${d.min}${d.ampm}`
 };
 
-const timeWithSeconds = (date) => {
-  if (!date) return false;
-  const d = breakDownDate(date);
-  return `${d.hour}:${d.min}:${d.sec}${d.ampm}`
-};
-
 const dateOnly = (date) => {
   if (!date) return false;
   const d = breakDownDate(date);
@@ -119,7 +113,6 @@ const getTimeOffset = (date, offset) => {
 export {
   datetime,
   timeOnly,
-  timeWithSeconds,
   dateOnly,
   isSameDate,
   timeDifference,
