@@ -35,12 +35,6 @@ const timeOnly = (date) => {
   return `${d.hour}:${d.min}${d.ampm}`
 };
 
-const timeWithSeconds = (date) => {
-  if (!date) return false;
-  const d = breakDownDate(date);
-  return `${d.hour}:${d.min}:${d.sec}${d.ampm}`
-};
-
 const dateOnly = (date) => {
   if (!date) return false;
   const d = breakDownDate(date);
@@ -95,7 +89,7 @@ const formatTimeDuration = (durationInSeconds, numberDecimals) => {
     `${sec}s`;
 };
 
-const formatTimeDurationHMM = (durationInSeconds) => {
+const formatTimeDurationMMMSS = (durationInSeconds) => {
   if (parseFloat(durationInSeconds) === 0) return '0:00';
   if (!durationInSeconds) return false;
   let min = Math.floor(durationInSeconds / 60);
@@ -119,11 +113,10 @@ const getTimeOffset = (date, offset) => {
 export {
   datetime,
   timeOnly,
-  timeWithSeconds,
   dateOnly,
   isSameDate,
   timeDifference,
   formatTimeDuration,
-  formatTimeDurationHMM,
+  formatTimeDurationMMMSS,
   getTimeOffset,
 };
