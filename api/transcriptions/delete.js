@@ -1,8 +1,6 @@
 const mysql = require('../../db/mysql');
 const logger = require('../../utils/logger');
-const fs = require('fs');
-const util = require('util');
-const unlink = util.promisify(fs.unlink);
+const {execSync} = require('child_process');
 
 module.exports = async(req, res) => {
   try {
@@ -19,7 +17,7 @@ module.exports = async(req, res) => {
 
     // Delete recording files
     try {
-      results[0].recording_path && await unlink(results[0].recording_path);
+      if (results[0].recording_path) execSync(`sudo rm ${results[0].recording_path}`);
     } catch (err) {
       if (err.message.includes('ENOENT: no such file or directory')) {
         logger.warn(`Was going to delete file "${results[0].recording_path}", but it doesn't exist.`);

@@ -3,6 +3,7 @@ const logger = require('../../utils/logger');
 const fs = require('fs');
 const util = require('util');
 const unlink = util.promisify(fs.unlink);
+const {execSync} = require('child_process');
 
 module.exports = async(req, res) => {
   try {
@@ -30,7 +31,7 @@ module.exports = async(req, res) => {
     // Delete all files associated with transcriptions
     files.forEach(async(file) => {
       try {
-        await unlink(file);
+        execSync(`sudo rm ${file}`);
       } catch (err) {
         if (err.message.includes('ENOENT: no such file or directory')) {
           logger.warn(`Was going to delete file "${file}", but it doesn't exist.`);
