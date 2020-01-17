@@ -103,6 +103,7 @@ class Conferences extends Component {
     this.setState({
       modalDisplayed: '',
       confBeingModified: null,
+      rowHighlighted: null,
     })
   }
   async refreshAfterSave() {
@@ -111,6 +112,7 @@ class Conferences extends Component {
       conferences: conferencesResults.data,
       modalDisplayed: '',
       confBeingModified: null,
+      rowHighlighted: null,
     })
   }
   closeEverything(e) {

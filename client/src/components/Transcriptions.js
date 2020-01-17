@@ -73,6 +73,7 @@ class Transcriptions extends Component {
     this.setState({
       modalDisplayed: '',
       transcriptionBeingModified: null,
+        rowHighlighted: null,
     })
   }
   async refreshAfterSave() {
@@ -82,6 +83,7 @@ class Transcriptions extends Component {
       transcriptions: transcriptions.data,
       modalDisplayed: '',
       transcriptionBeingModified: null,
+      rowHighlighted: null,
     })
   }
   sortReverse() {
