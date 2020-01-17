@@ -30,6 +30,7 @@ class Transcriptions extends Component {
     this.cancelForm = this.cancelForm.bind(this);
     this.refreshAfterSave = this.refreshAfterSave.bind(this);
     this.sortReverse = this.sortReverse.bind(this);
+    this.closeEverything = this.closeEverything.bind(this);
   }
   toggleTransMenu(id, e) {
     e.stopPropagation();
@@ -93,23 +94,18 @@ class Transcriptions extends Component {
       transcriptions: reversed,
     })
   }
-  async componentDidMount() {
-    window.addEventListener('click', () => {
+  closeEverything(e) {
+    if (!e.key || e.key === 'Escape' || e.key === 'Esc') {
       this.setState({
         modalDisplayed: '',
         rowHighlighted: null,
       });
       this.closeAllMenus();
-    });
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' || e.key === 'Esc') {
-        this.setState({
-          modalDisplayed: '',
-          rowHighlighted: null,
-        });
-        this.closeAllMenus();
-      }
-    });
+    }
+  }
+  async componentDidMount() {
+    window.addEventListener('click', this.closeEverything);
+    window.addEventListener('keydown', this.closeEverything);
     const confId = this.props.match.params.id;
     const confInfo = await axios.get(`/api/conf/${confId}`);
     const transcriptions = await axios.get(`/api/conf/${confId}/trans`)
@@ -117,6 +113,10 @@ class Transcriptions extends Component {
       confInfo: confInfo.data,
       transcriptions: transcriptions.data,
     });
+  }
+  componentWillUnmount() {
+    window.removeEventListener('click', this.closeEverything);
+    window.removeEventListener('keydown', this.closeEverything);
   }
   render() {
     return (

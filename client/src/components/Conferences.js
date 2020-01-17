@@ -35,6 +35,7 @@ class Conferences extends Component {
     this.addConference = this.addConference.bind(this);
     this.cancelForm = this.cancelForm.bind(this);
     this.refreshAfterSave = this.refreshAfterSave.bind(this);
+    this.closeEverything = this.closeEverything.bind(this);
   }
   toggleConfMenu(id, e) {
     e.stopPropagation();
@@ -112,25 +113,24 @@ class Conferences extends Component {
       confBeingModified: null,
     })
   }
-  async componentDidMount() {
-    window.addEventListener('click', () => {
+  closeEverything(e) {
+    if (!e.key || e.key === 'Escape' || e.key === 'Esc') {
       this.setState({
         modalDisplayed: '',
         rowHighlighted: null,
       });
       this.closeAllMenus();
-    });
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' || e.key === 'Esc') {
-        this.setState({
-          modalDisplayed: '',
-          rowHighlighted: null,
-        });
-        this.closeAllMenus();
-      }
-    });
+    }
+  }
+  async componentDidMount() {
+    window.addEventListener('click', this.closeEverything);
+    window.addEventListener('keydown', this.closeEverything);
     const conferencesResults = await axios.get('/api/conf');
     this.setState({ conferences: conferencesResults.data });
+  }
+  componentWillUnmount() {
+    window.removeEventListener('click', this.closeEverything);
+    window.removeEventListener('keydown', this.closeEverything);
   }
   render() {
     return (
