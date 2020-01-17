@@ -11,6 +11,7 @@ class DeleteConferenceForm extends Component {
     this.state = {
       errorMessage: '',
     }
+    this.setFocus = React.createRef();
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleCancel = this.handleCancel.bind(this);
@@ -32,6 +33,9 @@ class DeleteConferenceForm extends Component {
   handleCancel() {
     this.props.cancel();
   }
+  componentDidMount() {
+    this.setFocus.current.focus();
+  }
   render() {
     return (
       <Modal.Background>
@@ -52,7 +56,12 @@ class DeleteConferenceForm extends Component {
             </DescriptiveTable.Table>
             <ErrorMessage>WARNING: This will permanently delete all transcriptions and recordings associated with this conference.</ErrorMessage>
             <ButtonContainer style={{marginTop: '0.7rem'}}>
-              <Button gray type="button" onClick={this.handleCancel}>Cancel</Button>
+              <Button
+                gray
+                type="button"
+                onClick={this.handleCancel}
+                ref={this.setFocus}
+              >Cancel</Button>
               <Button danger>Delete</Button>
             </ButtonContainer>
           </form>

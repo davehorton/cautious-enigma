@@ -15,6 +15,7 @@ class AddEditConferenceForm extends Component {
       description: '',
       errorMessage: '',
     }
+    this.setFocus = React.createRef();
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleCancel = this.handleCancel.bind(this);
@@ -63,7 +64,7 @@ class AddEditConferenceForm extends Component {
         title: 'Add a Conference',
       })
     }
-    document.getElementById('meeting_pin').focus();
+    this.setFocus.current.focus();
   }
   render() {
     return (
@@ -84,6 +85,7 @@ class AddEditConferenceForm extends Component {
                     type="text"
                     value={this.state.meeting_pin}
                     onChange={this.handleChange}
+                    ref={this.setFocus}
                   />
                   </td>
                 </Form.Row>
