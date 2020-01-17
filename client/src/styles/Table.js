@@ -96,6 +96,7 @@ const StyledLink = styled(Link)`
 const Button = styled.button`
   display: block;
   height: 3rem;
+  width: 100%;
   padding: 0 1rem;
   border: none;
   background: none;

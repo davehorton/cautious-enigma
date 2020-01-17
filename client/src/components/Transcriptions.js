@@ -180,6 +180,8 @@ class Transcriptions extends Component {
                           <Table.Button
                             onClick={this.toggleTransMenu.bind(this, t.id)}
                             disabled={this.state.modalDisplayed}
+                            forceHighlight={this.state.rowHighlighted === t.id}
+                            allowHighlight={!this.state.rowHighlighted}
                           >
                             &#9776;
                           </Table.Button>

@@ -56,6 +56,9 @@ UtterTable.Th = styled(Table.Th)`
   &:nth-child(4) {
     text-align: right;
   }
+  &:nth-child(5) {
+    text-align: right
+  }
   @media (max-width: 700px) {
     padding: 0;
     font-size: 0.9rem;
