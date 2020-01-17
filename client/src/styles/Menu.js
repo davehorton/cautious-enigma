@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 
 const Menu = styled.div`
   position: absolute;
@@ -11,7 +12,7 @@ const Menu = styled.div`
   z-index: 100;
 `;
 
-const Link = styled.button`
+const StyledLink = styled(Link)`
   padding: 0.5rem;
   border: none;
   background: none;
@@ -28,5 +29,5 @@ const Link = styled.button`
 
 export default {
   Menu,
-  Link
+  StyledLink
 };

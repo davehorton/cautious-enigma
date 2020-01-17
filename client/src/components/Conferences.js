@@ -179,17 +179,17 @@ class Conferences extends Component {
                   allowHighlight={!this.state.rowHighlighted}
                 >
                   <Table.Td>
-                    <Table.A href={`/conf/${c.id}`}>{c.meeting_pin}</Table.A>
+                    <Table.StyledLink to={`/conf/${c.id}`}>{c.meeting_pin}</Table.StyledLink>
                   </Table.Td>
                   <Table.Td grow>
-                    <Table.A href={`/conf/${c.id}`}>
+                    <Table.StyledLink to={`/conf/${c.id}`}>
                       {c.description || <span>&nbsp;</span>}
                       {c.freeswitch_ip &&
                         <Table.Span blue title="There is currently an active call on this conference">
                           (Active)
                         </Table.Span>
                       }
-                    </Table.A>
+                    </Table.StyledLink>
                   </Table.Td>
                   <Table.Td>
                     <Table.Button
@@ -203,21 +203,25 @@ class Conferences extends Component {
                     {
                       c.showMenu
                         ? <Menu.Menu>
-                            <Menu.Link as="a" href={`/conf/${c.id}`}>
+                            <Menu.StyledLink to={`/conf/${c.id}`}>
                               View Transcriptions
-                            </Menu.Link>
-                            <Menu.Link
+                            </Menu.StyledLink>
+                            <Menu.StyledLink
+                              to=""
+                              as="button"
                               onClick={this.editConference.bind(this, c)}
                               disabled={this.state.modalDisplayed}
                             >
                               Edit Conference
-                            </Menu.Link>
-                            <Menu.Link
+                            </Menu.StyledLink>
+                            <Menu.StyledLink
+                              to=""
+                              as="button"
                               onClick={this.deleteConference.bind(this, c)}
                               disabled={this.state.modalDisplayed}
                             >
                               Delete Conference
-                            </Menu.Link>
+                            </Menu.StyledLink>
                           </Menu.Menu>
                         : null
                     }

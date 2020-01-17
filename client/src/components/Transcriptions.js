@@ -4,7 +4,7 @@ import DeleteTranscriptionForm from './forms/DeleteTranscriptionForm';
 import { datetime, formatTimeDuration, timeDifference } from '../util/date-format';
 import Main from '../styles/Main';
 import H1 from '../styles/H1';
-import A from '../styles/A';
+import Link from '../styles/Link';
 import Table from '../styles/Table';
 import Menu from '../styles/Menu';
 import Select from '../styles/Select';
@@ -122,7 +122,7 @@ class Transcriptions extends Component {
     return (
       <Main>
         <Header>
-          <A href='/'>&lt; Back to Conferences</A>
+          <Link to='/'>&lt; Back to Conferences</Link>
           {
             this.state.modalDisplayed === 'deleteTranscription'
               ? <DeleteTranscriptionForm
@@ -165,14 +165,14 @@ class Transcriptions extends Component {
                         allowHighlight={!this.state.rowHighlighted}
                       >
                         <Table.Td grow>
-                          <Table.A href={`/conf/${this.props.match.params.id}/trans/${t.id}`}>
+                          <Table.StyledLink to={`/conf/${this.props.match.params.id}/trans/${t.id}`}>
                             {datetime(t.time_start)}
                             {
                               t.time_end
                                 ? ` (${formatTimeDuration(timeDifference(t.time_start, t.time_end))})`
                                 : <Table.Span blue>In Progress</Table.Span>
                             }
-                          </Table.A>
+                          </Table.StyledLink>
                         </Table.Td>
                         <Table.Td>
                           <Table.Button
@@ -184,15 +184,17 @@ class Transcriptions extends Component {
                           {
                             t.showMenu
                               ? <Menu.Menu>
-                                  <Menu.Link as="a" href={`/conf/${this.props.match.params.id}/trans/${t.id}`}>
+                                  <Menu.StyledLink to={`/conf/${this.props.match.params.id}/trans/${t.id}`}>
                                     View transcription
-                                  </Menu.Link>
-                                  <Menu.Link
+                                  </Menu.StyledLink>
+                                  <Menu.StyledLink
+                                    to=""
+                                    as="button"
                                     onClick={this.deleteTranscription.bind(this, t)}
                                     disabled={this.state.modalDisplayed}
                                   >
                                     Delete Transcription
-                                  </Menu.Link>
+                                  </Menu.StyledLink>
                                 </Menu.Menu>
                               : null
                           }
