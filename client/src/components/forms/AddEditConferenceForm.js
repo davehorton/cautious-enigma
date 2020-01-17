@@ -44,8 +44,6 @@ class AddEditConferenceForm extends Component {
       this.props.complete();
     } catch (err) {
       this.setState({ errorMessage: err });
-      console.log(JSON.stringify(err, null, 2));
-      console.log(err.response);
     }
   }
   handleCancel() {
