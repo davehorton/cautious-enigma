@@ -24,7 +24,7 @@ if (process.env.NODE_ENV !== 'test') {
       if (err) { throw err; }
       logger.info(`Started drachtio listening on ${hp}`);
       try {
-        await srf.locals.lb.start({servers: [{address: '127.0.0.0', port: 8021, secret: 'ClueCon'}], logger, srf});
+        await srf.locals.lb.start({servers: [{address: '127.0.0.1', port: 8021, secret: 'ClueCon'}], logger, srf});
       } catch (error) {
         logger.error(error);
       }
