@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/davehorton/cautious-enigma#readme",
   "dependencies": {
-    "config": "^3.2.4",
+    "config": "^3.3.0",
     "cors": "^2.8.5",
     "drachtio-fn-fsmrf-sugar": "0.0.9",
     "drachtio-fsmrf": "^1.5.8",
@@ -34,7 +34,7 @@
     "yamljs": "^0.3.0"
   },
   "devDependencies": {
-    "eslint": "^6.7.2",
+    "eslint": "^6.8.0",
     "eslint-plugin-promise": "^4.2.1",
     "request": "^2.88.0",
     "tap-spec": "^5.0.0",
