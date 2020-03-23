@@ -1,4 +1,3 @@
-const config = require('config');
 const express = require('express');
 const app = express();
 const logger = require('./utils/logger');
@@ -13,18 +12,19 @@ if (process.env.NODE_ENV !== 'test') {
   const { LoadBalancer } = require('drachtio-fn-fsmrf-sugar');
   srf.locals.lb = new LoadBalancer();
 }
+const httpPort = process.env.HTTP_PORT || 3000;
 
 //=============================================================================
 // Telephony stuff
 //=============================================================================
 if (process.env.NODE_ENV !== 'test') {
-  srf.connect(config.get('drachtio'));
+  srf.connect({host: '127.0.0.1', port: 9022, secret: 'cymru'});
   srf
     .on('connect', async(err, hp) => {
       if (err) { throw err; }
       logger.info(`Started drachtio listening on ${hp}`);
       try {
-        await srf.locals.lb.start({servers: config.get('freeswitch'), logger, srf});
+        await srf.locals.lb.start({servers: [{address: '127.0.0.0', port: 8021, secret: 'ClueCon'}], logger, srf});
       } catch (error) {
         logger.error(error);
       }
@@ -60,8 +60,8 @@ app.get('*', (req, res) => {
 //=============================================================================
 // Listen for requests
 //=============================================================================
-app.listen(config.get('port'), () => {
-  logger.info(`# API started on port ${config.get('port')}`);
+app.listen(httpPort, () => {
+  logger.info(`API started on port ${httpPort}`);
 });
 
 module.exports = app;

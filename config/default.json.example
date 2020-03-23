@@ -1,24 +1,4 @@
 {
-  "port": 3000,
-  "logging": {
-    "level": "info"
-  },
-  "mysql": {
-    "host": "localhost",
-    "user": "deepgram",
-    "password": "deepgram",
-    "database": "deepgram"
-  },
-  "drachtio": {
-    "host": "127.0.0.1",
-    "port": 9022,
-    "secret": "cymru"
-  },
-  "freeswitch": [{
-    "address": "127.0.0.1",
-    "port": 8021,
-    "secret": "ClueCon"
-  }],
   "prompts": {
     "welcome": "conference/conf-enter_conf_number.wav",
     "error": "conference/conf-bad-pin.wav",

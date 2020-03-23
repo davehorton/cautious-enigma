@@ -1,6 +1,9 @@
-const util = require('util');
 const mysql = require('mysql2/promise');
-const config = require('config');
-const pool = mysql.createPool(config.get('mysql'));
+const pool = mysql.createPool({
+  host: process.env.DEEPGRAM_MYSQL_HOST || 'localhost',
+  user: process.env.DEEPGRAM_MYSQL_USER || 'deepgram',
+  password: process.env.DEEPGRAM_MYSQL_PASSWORD || 'deepgram',
+  database: process.env.DEEPGRAM_MYSQL_DATABASE || 'deepgram'
+});
 
 module.exports = pool;

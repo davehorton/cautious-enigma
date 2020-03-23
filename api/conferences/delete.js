@@ -1,8 +1,5 @@
 const mysql = require('../../db/mysql');
 const logger = require('../../utils/logger');
-const fs = require('fs');
-const util = require('util');
-const unlink = util.promisify(fs.unlink);
 const {execSync} = require('child_process');
 
 module.exports = async(req, res) => {

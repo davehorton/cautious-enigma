@@ -4,7 +4,12 @@ const child_process = require('child_process');
 const promisify = require('util').promisify;
 const exec = promisify(child_process.exec);
 const pwd = process.env.TRAVIS ? '' : '-p$MYSQL_ROOT_PASSWORD';
-const { user, password, database } = config.get('mysql');
+const { user, password, database } = {
+  host: process.env.DEEPGRAM_MYSQL_HOST || 'localhost',
+  user: process.env.DEEPGRAM_MYSQL_USER || 'deepgram',
+  password: process.env.DEEPGRAM_MYSQL_PASSWORD || 'deepgram',
+  database: process.env.DEEPGRAM_MYSQL_DATABASE || 'deepgram'
+}; 
 const app = require('../app');
 
 //=============================================================================
