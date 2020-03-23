@@ -1,4 +1,3 @@
-const config = require('config');
 const test = require('tape');
 const child_process = require('child_process');
 const promisify = require('util').promisify;

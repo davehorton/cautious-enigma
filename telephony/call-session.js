@@ -1,5 +1,4 @@
 const Emitter = require('events');
-const config = require('config');
 const moment = require('moment');
 const execSync = require('child_process').execSync;
 const {apiJoinConference, apiAddUtterance, apiCloseConference} = require('./apis');
@@ -54,8 +53,8 @@ class CallSession extends Emitter {
   async _promptForMeetingId() {
     for (let i = 0; i < 3; i++) {
       try {
-        if (i > 0) await this.ep.play(config.get('prompts').error);
-        const { digits } = await this.ep.playCollect({ file: config.get('prompts').welcome, min: 1, max: 15 });
+        if (i > 0) await this.ep.play(process.env.DEEPGRAM_ERROR_PROMPT);
+        const { digits } = await this.ep.playCollect({ file: process.env.DEEPGRAM_WELCOME_PROMPT, min: 1, max: 15 });
         this.logger.debug(`collected meeting pin ${digits}`);
         const { meeting_pin, freeswitch_ip } = await apiJoinConference(this.logger, digits, this.ms.address);
         this.confPin = `conf-${meeting_pin}`;
@@ -115,7 +114,7 @@ class CallSession extends Emitter {
 
   async _forkAudio() {
     try {
-      const url = config.get('deepgram-websocket-server.url');
+      const url = process.env.DEEPGRAM_WS_URL;
       this.logger.info(`forking audio to websocket server at ${url}`);
       this.ep.addCustomEventListener('mod_audio_fork::connect', (evt) => {
         this.logger.info('successfully connected to websocket server');
@@ -164,7 +163,7 @@ class CallSession extends Emitter {
     });
 
     // fork conference audio between the two endpoints to the websocket server
-    const url = config.get('deepgram-websocket-server.url');
+    const url = process.env.DEEPGRAM_WS_URL;
     this.logger.info(`forking audio to websocket server at ${url}`);
     await this.wsStreamEndpoint.forkAudioStart({
       wsUrl: url,

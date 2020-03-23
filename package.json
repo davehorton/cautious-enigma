@@ -19,7 +19,6 @@
   },
   "homepage": "https://github.com/davehorton/cautious-enigma#readme",
   "dependencies": {
-    "config": "^3.3.0",
     "cors": "^2.8.5",
     "drachtio-fn-fsmrf-sugar": "0.0.9",
     "drachtio-fsmrf": "^1.5.8",

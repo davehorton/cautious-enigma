@@ -1,4 +1,3 @@
-const config = require('config');
 const assert = require('assert');
 const request = require('request-promise-native');
 //require('request-debug')(request);
@@ -7,7 +6,7 @@ async function apiJoinConference(logger, meeting_pin, fs_address) {
   try {
     assert.equal(typeof meeting_pin, 'string', 'argument \'meeting_pin\' must be string');
 
-    const conference_api_uri = `http://127.0.0.1:${config.get('port')}/api/voip/join-conference/${meeting_pin}`;
+    const conference_api_uri = `http://127.0.0.1:${process.env.HTTP_PORT}/api/voip/join-conference/${meeting_pin}`;
 
     const options = {
       method: 'POST',
@@ -34,7 +33,7 @@ async function apiAddUtterance(logger, meeting_pin, evt) {
     if (evt.channel.alternatives.length === 0 || evt.channel.alternatives[0].transcript.length === 0) {
       return;
     }
-    const conference_api_uri = `http://127.0.0.1:${config.get('port')}/api/voip/add-utterance/${meeting_pin}`;
+    const conference_api_uri = `http://127.0.0.1:${process.env.HTTP_PORT}/api/voip/add-utterance/${meeting_pin}`;
 
     const options = {
       method: 'POST',
@@ -61,7 +60,7 @@ async function apiCloseConference(logger, meeting_pin, recording_path) {
   try {
     assert.equal(typeof meeting_pin, 'string', 'argument \'meeting_pin\' must be string');
 
-    const conference_api_uri = `http://127.0.0.1:${config.get('port')}/api/voip/end-transcription/${meeting_pin}`;
+    const conference_api_uri = `http://127.0.0.1:${process.env.HTTP_PORT}/api/voip/end-transcription/${meeting_pin}`;
 
     const options = {
       method: 'PUT',
