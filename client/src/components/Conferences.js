@@ -35,6 +35,7 @@ class Conferences extends Component {
     this.addConference = this.addConference.bind(this);
     this.cancelForm = this.cancelForm.bind(this);
     this.refreshAfterSave = this.refreshAfterSave.bind(this);
+    this.closeEverything = this.closeEverything.bind(this);
   }
   toggleConfMenu(id, e) {
     e.stopPropagation();
@@ -102,6 +103,7 @@ class Conferences extends Component {
     this.setState({
       modalDisplayed: '',
       confBeingModified: null,
+      rowHighlighted: null,
     })
   }
   async refreshAfterSave() {
@@ -110,27 +112,27 @@ class Conferences extends Component {
       conferences: conferencesResults.data,
       modalDisplayed: '',
       confBeingModified: null,
+      rowHighlighted: null,
     })
   }
-  async componentDidMount() {
-    window.addEventListener('click', () => {
+  closeEverything(e) {
+    if (!e.key || e.key === 'Escape' || e.key === 'Esc') {
       this.setState({
         modalDisplayed: '',
         rowHighlighted: null,
       });
       this.closeAllMenus();
-    });
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' || e.key === 'Esc') {
-        this.setState({
-          modalDisplayed: '',
-          rowHighlighted: null,
-        });
-        this.closeAllMenus();
-      }
-    });
+    }
+  }
+  async componentDidMount() {
+    window.addEventListener('click', this.closeEverything);
+    window.addEventListener('keydown', this.closeEverything);
     const conferencesResults = await axios.get('/api/conf');
     this.setState({ conferences: conferencesResults.data });
+  }
+  componentWillUnmount() {
+    window.removeEventListener('click', this.closeEverything);
+    window.removeEventListener('keydown', this.closeEverything);
   }
   render() {
     return (
@@ -179,17 +181,17 @@ class Conferences extends Component {
                   allowHighlight={!this.state.rowHighlighted}
                 >
                   <Table.Td>
-                    <Table.A href={`/conf/${c.id}`}>{c.meeting_pin}</Table.A>
+                    <Table.StyledLink to={`/conf/${c.id}`}>{c.meeting_pin}</Table.StyledLink>
                   </Table.Td>
                   <Table.Td grow>
-                    <Table.A href={`/conf/${c.id}`}>
+                    <Table.StyledLink to={`/conf/${c.id}`}>
                       {c.description || <span>&nbsp;</span>}
                       {c.freeswitch_ip &&
                         <Table.Span blue title="There is currently an active call on this conference">
                           (Active)
                         </Table.Span>
                       }
-                    </Table.A>
+                    </Table.StyledLink>
                   </Table.Td>
                   <Table.Td>
                     <Table.Button
@@ -203,21 +205,25 @@ class Conferences extends Component {
                     {
                       c.showMenu
                         ? <Menu.Menu>
-                            <Menu.Link as="a" href={`/conf/${c.id}`}>
+                            <Menu.StyledLink to={`/conf/${c.id}`}>
                               View Transcriptions
-                            </Menu.Link>
-                            <Menu.Link
+                            </Menu.StyledLink>
+                            <Menu.StyledLink
+                              to=""
+                              as="button"
                               onClick={this.editConference.bind(this, c)}
                               disabled={this.state.modalDisplayed}
                             >
                               Edit Conference
-                            </Menu.Link>
-                            <Menu.Link
+                            </Menu.StyledLink>
+                            <Menu.StyledLink
+                              to=""
+                              as="button"
                               onClick={this.deleteConference.bind(this, c)}
                               disabled={this.state.modalDisplayed}
                             >
                               Delete Conference
-                            </Menu.Link>
+                            </Menu.StyledLink>
                           </Menu.Menu>
                         : null
                     }

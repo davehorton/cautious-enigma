@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 
 const Table = styled.table`
   margin: 1rem auto;
@@ -77,7 +78,7 @@ const Td = styled.td`
   `}
 `;
 
-const A = styled.a`
+const StyledLink = styled(Link)`
   display: block;
   line-height: 3rem;
   padding: 0 1rem;
@@ -95,6 +96,7 @@ const A = styled.a`
 const Button = styled.button`
   display: block;
   height: 3rem;
+  width: 100%;
   padding: 0 1rem;
   border: none;
   background: none;
@@ -139,7 +141,7 @@ export default {
   Tr,
   Th,
   Td,
-  A,
+  StyledLink,
   Button,
   Span,
 };

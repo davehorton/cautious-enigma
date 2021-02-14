@@ -3,7 +3,7 @@ import axios from 'axios';
 import { datetime, timeOnly, dateOnly, timeDifference, isSameDate, formatTimeDuration, formatTimeDurationMMMSS, getTimeOffset } from '../util/date-format';
 import Main from '../styles/Main';
 import H1 from '../styles/H1';
-import A from '../styles/A';
+import Link from '../styles/Link';
 import Button from '../styles/Button';
 import Table from '../styles/Table';
 import Audio from '../styles/Audio';
@@ -55,6 +55,9 @@ UtterTable.Th = styled(Table.Th)`
   }
   &:nth-child(4) {
     text-align: right;
+  }
+  &:nth-child(5) {
+    text-align: right
   }
   @media (max-width: 700px) {
     padding: 0;
@@ -200,9 +203,9 @@ class Utterances extends Component {
       <Main noPadding>
         <Header>
           <div>
-            <A href={`/conf/${this.props.match.params.confId}`}>
+            <Link to={`/conf/${this.props.match.params.confId}`}>
               &lt; Back to Conference {this.state.confInfo.meeting_pin}
-            </A>
+            </Link>
             <H1>Transcription</H1>
           </div>
           <DescriptiveTable.Table>

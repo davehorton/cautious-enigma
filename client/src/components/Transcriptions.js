@@ -4,7 +4,7 @@ import DeleteTranscriptionForm from './forms/DeleteTranscriptionForm';
 import { datetime, formatTimeDuration, timeDifference } from '../util/date-format';
 import Main from '../styles/Main';
 import H1 from '../styles/H1';
-import A from '../styles/A';
+import Link from '../styles/Link';
 import Table from '../styles/Table';
 import Menu from '../styles/Menu';
 import Select from '../styles/Select';
@@ -30,6 +30,7 @@ class Transcriptions extends Component {
     this.cancelForm = this.cancelForm.bind(this);
     this.refreshAfterSave = this.refreshAfterSave.bind(this);
     this.sortReverse = this.sortReverse.bind(this);
+    this.closeEverything = this.closeEverything.bind(this);
   }
   toggleTransMenu(id, e) {
     e.stopPropagation();
@@ -72,6 +73,7 @@ class Transcriptions extends Component {
     this.setState({
       modalDisplayed: '',
       transcriptionBeingModified: null,
+        rowHighlighted: null,
     })
   }
   async refreshAfterSave() {
@@ -81,6 +83,7 @@ class Transcriptions extends Component {
       transcriptions: transcriptions.data,
       modalDisplayed: '',
       transcriptionBeingModified: null,
+      rowHighlighted: null,
     })
   }
   sortReverse() {
@@ -93,23 +96,18 @@ class Transcriptions extends Component {
       transcriptions: reversed,
     })
   }
-  async componentDidMount() {
-    window.addEventListener('click', () => {
+  closeEverything(e) {
+    if (!e.key || e.key === 'Escape' || e.key === 'Esc') {
       this.setState({
         modalDisplayed: '',
         rowHighlighted: null,
       });
       this.closeAllMenus();
-    });
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' || e.key === 'Esc') {
-        this.setState({
-          modalDisplayed: '',
-          rowHighlighted: null,
-        });
-        this.closeAllMenus();
-      }
-    });
+    }
+  }
+  async componentDidMount() {
+    window.addEventListener('click', this.closeEverything);
+    window.addEventListener('keydown', this.closeEverything);
     const confId = this.props.match.params.id;
     const confInfo = await axios.get(`/api/conf/${confId}`);
     const transcriptions = await axios.get(`/api/conf/${confId}/trans`)
@@ -118,11 +116,15 @@ class Transcriptions extends Component {
       transcriptions: transcriptions.data,
     });
   }
+  componentWillUnmount() {
+    window.removeEventListener('click', this.closeEverything);
+    window.removeEventListener('keydown', this.closeEverything);
+  }
   render() {
     return (
       <Main>
         <Header>
-          <A href='/'>&lt; Back to Conferences</A>
+          <Link to='/'>&lt; Back to Conferences</Link>
           {
             this.state.modalDisplayed === 'deleteTranscription'
               ? <DeleteTranscriptionForm
@@ -165,34 +167,38 @@ class Transcriptions extends Component {
                         allowHighlight={!this.state.rowHighlighted}
                       >
                         <Table.Td grow>
-                          <Table.A href={`/conf/${this.props.match.params.id}/trans/${t.id}`}>
+                          <Table.StyledLink to={`/conf/${this.props.match.params.id}/trans/${t.id}`}>
                             {datetime(t.time_start)}
                             {
                               t.time_end
                                 ? ` (${formatTimeDuration(timeDifference(t.time_start, t.time_end))})`
                                 : <Table.Span blue>In Progress</Table.Span>
                             }
-                          </Table.A>
+                          </Table.StyledLink>
                         </Table.Td>
                         <Table.Td>
                           <Table.Button
                             onClick={this.toggleTransMenu.bind(this, t.id)}
                             disabled={this.state.modalDisplayed}
+                            forceHighlight={this.state.rowHighlighted === t.id}
+                            allowHighlight={!this.state.rowHighlighted}
                           >
                             &#9776;
                           </Table.Button>
                           {
                             t.showMenu
                               ? <Menu.Menu>
-                                  <Menu.Link as="a" href={`/conf/${this.props.match.params.id}/trans/${t.id}`}>
+                                  <Menu.StyledLink to={`/conf/${this.props.match.params.id}/trans/${t.id}`}>
                                     View transcription
-                                  </Menu.Link>
-                                  <Menu.Link
+                                  </Menu.StyledLink>
+                                  <Menu.StyledLink
+                                    to=""
+                                    as="button"
                                     onClick={this.deleteTranscription.bind(this, t)}
                                     disabled={this.state.modalDisplayed}
                                   >
                                     Delete Transcription
-                                  </Menu.Link>
+                                  </Menu.StyledLink>
                                 </Menu.Menu>
                               : null
                           }
